@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'app_page_2.dart';
+import '../second_page.dart';
 import 'control_panel_education_level.dart';
-import 'control_panel_for_add&delete_classroom.dart';
+import 'control_panel_daily_report.dart';
 import 'control_panel_monthly_topper.dart';
 import 'control_panel_std_name_list.dart';
+import 'register/sign_up_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -138,6 +139,17 @@ class AdminsPanelPage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => StudentsNameListControlPage()),
+                      );
+                    },
+                  ),
+                   _buildModernButton(
+                    icon: Icons.person_add,
+                    label: 'Add Student',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SignupPage()),
                       );
                     },
                   ),

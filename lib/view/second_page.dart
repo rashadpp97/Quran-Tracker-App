@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:quran_progress_tracker_app/admins_panel_page.dart';
+import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
 
-import 'app_page_3.dart';
-import 'teachers_panel_page.dart';
-
-
-void main() {
-  
-  runApp(MainOptionPage());
-}
+import 'std_name_list_page.dart';
+import 'Students_panel/login_screen_page.dart';
+import 'Teachers_panel/teachers_panel_page.dart';
 
 class MainOptionPage extends StatelessWidget {
   const MainOptionPage({super.key});
@@ -115,7 +110,7 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => StudentsNameListPage()));
+                                builder: (context) => LoginScreen(studentName: '', className: '', image: '',)));
                       },
                     ),
                     _buildOptionCard(

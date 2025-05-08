@@ -25,9 +25,9 @@ class DailyReportControlPage extends StatelessWidget {
 
 class Student {
   // final String id;
-  final String name;
-  final int classNumber;
-  final YearlyProgress yearlyProgress;
+  late  String name;
+        int classNumber;
+        YearlyProgress yearlyProgress;
 
   Student({
     // required this.id,
@@ -39,7 +39,7 @@ class Student {
 
 class QuranClass {
   final int classNumber;
-  final List<Student> students;
+         List<Student> students;
 
   QuranClass({
     required this.classNumber,
@@ -387,7 +387,7 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
   }
 }
 
-class StudentListScreen extends StatelessWidget {
+class StudentListScreen extends StatefulWidget {
   final QuranClass quranClass;
   final String className;
 
@@ -396,6 +396,20 @@ class StudentListScreen extends StatelessWidget {
     required this.quranClass,
     required this.className,
   });
+
+  @override
+  State<StudentListScreen> createState() => _StudentListScreenState();
+}
+
+class _StudentListScreenState extends State<StudentListScreen> {
+  late List<Student> students;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Create a local copy of students to work with
+    students = widget.quranClass.students;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -410,16 +424,16 @@ class StudentListScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          className,
+          widget.className,
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E3C72),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: quranClass.students.length,
+        itemCount: students.length,
         itemBuilder: (context, index) {
-          final student = quranClass.students[index];
+          final student = students[index];
           return _buildStudentCard(context, student, index);
         },
       ),
@@ -427,88 +441,168 @@ class StudentListScreen extends StatelessWidget {
   }
 
   Widget _buildStudentCard(BuildContext context, Student student, int index) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    child: InkWell(
+      // Make the entire card tappable
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProgressTrackingScreen(student: student),
+          ),
+        );
+      },
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: const Color(0xFF1E3C72),
           child: Text(
-            student.name[0],
-            style: const TextStyle(color: Colors.white),
+            student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
-        title: Text(student.name),
-        // subtitle: Text('ID: ${student.id}'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
-              onSelected: (value) => _handleMenuSelection(context, value, student, index),
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit, size: 18),
-                      SizedBox(width: 8),
-                      Text('Edit'),
-                    ],
-                  ),
+        title: Text(
+          student.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1E3C72), // Optional: Make the text color match your theme
+          ),
+        ),
+        // Optional: Add a subtle hint that this is clickable
+        subtitle: const Text(
+          "Tap to view progress",
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        trailing: SizedBox(
+          width: 48, // Reduced width as we only have the menu button now
+          child: PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            padding: EdgeInsets.zero,
+            onSelected: (value) {
+              if (value == 'edit') {
+                _editStudent(context, student, index);
+              } else if (value == 'delete') {
+                _deleteStudent(context, student, index);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ],
                 ),
-                const PopupMenuItem<String>(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete, size: 18, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
                 ),
-              ],
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProgressTrackingScreen(student: student),
-                  ),
-                );
-              },
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  void _handleMenuSelection(BuildContext context, String value, Student student, int index) {
-    switch (value) {
-      case 'edit':
-        _showEditStudentDialog(context, student, index);
-        break;
-      case 'delete':
-        _showDeleteConfirmationDialog(context, student, index);
-        break;
-    }
-  }
+// // Alternative version without subtitle if you prefer a cleaner look
+// Widget _buildStudentCardSimple(BuildContext context, Student student, int index) {
+//   return Card(
+//     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//     child: InkWell(
+//       // Make the entire card tappable
+//       onTap: () {
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => ProgressTrackingScreen(student: student),
+//           ),
+//         );
+//       },
+//       child: ListTile(
+//         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//         leading: CircleAvatar(
+//           backgroundColor: const Color(0xFF1E3C72),
+//           child: Text(
+//             student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
+//             style: const TextStyle(
+//                 color: Colors.white, fontWeight: FontWeight.bold),
+//           ),
+//         ),
+//         title: Row(
+//           children: [
+//             Text(
+//               student.name,
+//               style: const TextStyle(fontWeight: FontWeight.w500),
+//             ),
+//             const SizedBox(width: 4),
+//             const Icon(
+//               Icons.arrow_forward,
+//               size: 16,
+//               color: Colors.grey,
+//             ),
+//           ],
+//         ),
+//         trailing: PopupMenuButton<String>(
+//           icon: const Icon(Icons.more_vert),
+//           padding: EdgeInsets.zero,
+//           onSelected: (value) {
+//             if (value == 'edit') {
+//               _editStudent(context, student, index);
+//             } else if (value == 'delete') {
+//               _deleteStudent(context, student, index);
+//             }
+//           },
+//           itemBuilder: (BuildContext context) => [
+//             const PopupMenuItem<String>(
+//               value: 'edit',
+//               child: Row(
+//                 children: [
+//                   Icon(Icons.edit),
+//                   SizedBox(width: 8),
+//                   Text('Edit'),
+//                 ],
+//               ),
+//             ),
+//             const PopupMenuItem<String>(
+//               value: 'delete',
+//               child: Row(
+//                 children: [
+//                   Icon(Icons.delete, color: Colors.red),
+//                   SizedBox(width: 8),
+//                   Text('Delete', style: TextStyle(color: Colors.red)),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     ),
+//   );
+// }
 
-  void _showEditStudentDialog(BuildContext context, Student student, int index) {
+  void _editStudent(BuildContext context, Student student, int index) {
     final TextEditingController nameController = TextEditingController(text: student.name);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Edit Student'),
         content: TextField(
           controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Student Name',
-          ),
-          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Student Name'),
+          autofocus: true, // Automatically focus the text field
         ),
         actions: [
           TextButton(
@@ -517,21 +611,24 @@ class StudentListScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              if (nameController.text.trim().isNotEmpty) {
-                // Update the student's name
-                // You'll need to implement the actual state update logic here
-                // For example, using a state management solution like Provider, GetX, etc.
-                // This is just a placeholder:
-                // setState(() {
-                //   quranClass.students[index].name = nameController.text.trim();
-                // });
+              // Update the student name
+              final updatedName = nameController.text.trim();
+              if (updatedName.isNotEmpty) {
+                setState(() {
+                  // Update both local and class references
+                  student.name = updatedName;
+                  // Also update the original list
+                  widget.quranClass.students[index].name = updatedName;
+                  
+                  // If you're using a state management solution like Provider or Bloc,
+                  // you might need to trigger an update there as well
+                  // Example: Provider.of<QuranClassProvider>(context, listen: false).updateStudent(index, student);
+                });
                 
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Student updated successfully')),
-                );
-                Navigator.pop(context);
+                // Save changes to persistent storage if needed
+                _saveChanges();
               }
+              Navigator.pop(context);
             },
             child: const Text('Save'),
           ),
@@ -540,7 +637,7 @@ class StudentListScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, Student student, int index) {
+  void _deleteStudent(BuildContext context, Student student, int index) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -553,18 +650,18 @@ class StudentListScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              // Remove the student from the list
-              // You'll need to implement the actual state update logic here
-              // For example, using a state management solution like Provider, GetX, etc.
-              // This is just a placeholder:
-              // setState(() {
-              //   quranClass.students.removeAt(index);
-              // });
+              setState(() {
+                // Remove the student from both lists
+                students.removeAt(index);
+                widget.quranClass.students.removeAt(index);
+                
+                // If using state management
+                // Provider.of<QuranClassProvider>(context, listen: false).removeStudent(index);
+              });
               
-              // Show success message
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Student deleted successfully')),
-              );
+              // Save changes to persistent storage if needed
+              _saveChanges();
+              
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -573,6 +670,15 @@ class StudentListScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+  
+  // Add this method to save changes to persistent storage
+  void _saveChanges() {
+    // Implement your storage logic here
+    // For example, using SharedPreferences, Hive, SQLite, or Firebase
+    // Example:
+    // final classProvider = Provider.of<QuranClassProvider>(context, listen: false);
+    // classProvider.saveClasses();
   }
 }
 

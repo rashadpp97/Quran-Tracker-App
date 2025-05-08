@@ -59,6 +59,7 @@ dependencies:
   animated_gradient: ^0.0.3
   glassmorphism: ^3.0.0
   smooth_page_indicator: ^1.2.1
+  firebase_auth: ^5.5.3
  
 dev_dependencies:
   flutter_test:

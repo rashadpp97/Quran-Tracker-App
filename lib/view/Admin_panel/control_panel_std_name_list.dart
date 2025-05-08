@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_page_2.dart';
-import 'app_page_4.dart';
+import '../second_page.dart';
+import '../Students_panel/login_screen_page.dart';
 
 void main() {
   runApp(const StudentsNameListControlPage());

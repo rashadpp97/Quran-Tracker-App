@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_page_2.dart';
+import 'second_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

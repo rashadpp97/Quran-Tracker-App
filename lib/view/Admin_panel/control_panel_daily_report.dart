@@ -763,8 +763,18 @@ class _StudentListScreenState extends State<StudentListScreen> {
   }
 
   Widget _buildStudentCard(BuildContext context, Student student, int index) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    child: InkWell(
+      // Make the entire card tappable
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProgressTrackingScreen(student: student),
+          ),
+        );
+      },
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
@@ -777,64 +787,132 @@ class _StudentListScreenState extends State<StudentListScreen> {
         ),
         title: Text(
           student.name,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1E3C72), // Optional: Make the text color match your theme
+          ),
+        ),
+        // Optional: Add a subtle hint that this is clickable
+        subtitle: const Text(
+          "Tap to view progress",
+          style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
         trailing: SizedBox(
-          width: 100, // Fixed width for the trailing widgets
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert),
-                padding: EdgeInsets.zero,
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    _editStudent(context, student, index);
-                  } else if (value == 'delete') {
-                    _deleteStudent(context, student, index);
-                  }
-                },
-                itemBuilder: (BuildContext context) => [
-                  const PopupMenuItem<String>(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit),
-                        SizedBox(width: 8),
-                        Text('Edit'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
-                  ),
-                ],
+          width: 48, // Reduced width as we only have the menu button now
+          child: PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            padding: EdgeInsets.zero,
+            onSelected: (value) {
+              if (value == 'edit') {
+                _editStudent(context, student, index);
+              } else if (value == 'delete') {
+                _deleteStudent(context, student, index);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ],
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, size: 18),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ProgressTrackingScreen(student: student),
-                    ),
-                  );
-                },
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+// Alternative version without subtitle if you prefer a cleaner look
+Widget _buildStudentCardSimple(BuildContext context, Student student, int index) {
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    child: InkWell(
+      // Make the entire card tappable
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProgressTrackingScreen(student: student),
+          ),
+        );
+      },
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: const Color(0xFF1E3C72),
+          child: Text(
+            student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+        title: Row(
+          children: [
+            Text(
+              student.name,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.arrow_forward,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+        trailing: PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          padding: EdgeInsets.zero,
+          onSelected: (value) {
+            if (value == 'edit') {
+              _editStudent(context, student, index);
+            } else if (value == 'delete') {
+              _deleteStudent(context, student, index);
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            const PopupMenuItem<String>(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit),
+                  SizedBox(width: 8),
+                  Text('Edit'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Delete', style: TextStyle(color: Colors.red)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   void _editStudent(BuildContext context, Student student, int index) {
     // final TextEditingController nameController = TextEditingController(text: student.name);

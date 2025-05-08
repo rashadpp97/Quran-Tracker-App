@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:quran_progress_tracker_app/admins_panel_page.dart';
+import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
 
 void main() {
   runApp(const EducationLevelControlPage());
