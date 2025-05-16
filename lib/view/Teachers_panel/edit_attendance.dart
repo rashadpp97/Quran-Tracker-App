@@ -788,7 +788,7 @@ class _AttendancePageState extends State<AttendanceControlPage> {
           ),
           if (classes.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.black, size: 18),
+              icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
               onPressed: () => _showDeleteClassDialog(selectedClass),
               tooltip: 'Delete Current Class',
             ),

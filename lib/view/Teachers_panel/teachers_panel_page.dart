@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../second_page.dart';
-import 'control_panel_attendance.dart';
-import 'control_panel_daily_report.dart';
+import 'edit_attendance.dart';
+import 'edit_daily_report.dart';
 
 void main() {
   runApp(const MyApp());

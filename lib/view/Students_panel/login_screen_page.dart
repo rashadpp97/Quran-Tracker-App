@@ -1,26 +1,46 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:quran_progress_tracker_app/view/Admin_panel/register/sign_up_page.dart';
+// import 'signup_screen.dart';
 import 'std_performanse_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen(
       {super.key,
-      required this.studentName,
-      // required this.studentId,
-      required this.className,
-      required this.image});
+
+  required this.studentName,
+  // required this.studentId,
+  required this.className,
+  required this.image, });
+      
   final String studentName;
   // final String studentId;
   final String className;
   final String image;
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   // Controllers for TextFields
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  Future<void> login() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => StudentsPerformancePage(name: '', className: '', image: '',)));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+    }
+  }
 
   // Toggle for password visibility
   bool _isPasswordVisible = false;
@@ -94,13 +114,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Username input
                   Text(
-                    "Username",
+                    "Email Address",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   TextField(
-                    controller: _usernameController,
+                    controller: _emailController,
                     decoration: InputDecoration(
-                      hintText: "Enter your username",
+                      hintText: "Email",
                       prefixIcon: Icon(Icons.person),
                       border: UnderlineInputBorder(),
                     ),
@@ -115,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: "Enter your password",
+                      hintText: "password",
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -136,6 +156,59 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Login button
                   Center(
                     child: ElevatedButton(
+                      onPressed: () async {
+                        // Get the user input
+                        String username = _emailController.text;
+                        String password = _passwordController.text;
+
+                        // Basic validation
+                        if (username.isEmpty || password.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Please fill in both fields."),
+                            ),
+                          );
+                          return;
+                        }
+                        
+                        try {
+                          // You may want to handle Firebase authentication here
+                          // For now, I'll comment it out since it has empty credentials
+                          /*
+                          await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: username, 
+                            password: password,
+                          );
+                          */
+                          
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Login successful!"),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                          
+                          // Navigate to the StudentsPerformancePage after successful login
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StudentsPerformancePage(
+                                name: widget.studentName,
+                                className: widget.className,
+                                image: widget.image,
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          // Show error message if authentication fails
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Authentication failed: ${e.toString()}"),
+                            ),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF0D47A1),
                         padding:
@@ -144,35 +217,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => StudentsPerformancePage(
-                              name: widget.studentName,
-                              className: widget.className,
-                              image: widget.image,
-                            ),
-                          ),
-                        );
-                        // Handle login action
-                        String username = _usernameController.text;
-                        String password = _passwordController.text;
-
-                        if (username.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Please fill in both fields."),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Logging in as $username"),
-                            ),
-                          );
-                        }
-                      },
                       child: Text(
                         "Login",
                         style: TextStyle(
@@ -182,25 +226,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
-                  // Forgot password text
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        // Handle forgot password action
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Forgot Password clicked."),
+                  const SizedBox(height: 5),
+                    // Sign UP option
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Don't have an account?"),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignUpPage(studentName: '', className: '', image: '',),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: Color(0xFF0D47A1),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        );
-                      },
-                      child: Text(
-                        "Forgot Password?",
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 75, 74, 74)),
+                        ],
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

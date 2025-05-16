@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../second_page.dart';
-import 'control_panel_education_level.dart';
-import 'control_panel_daily_report.dart';
-import 'control_panel_monthly_topper.dart';
-import 'control_panel_std_name_list.dart';
-import 'register/sign_up_page.dart';
+import 'edit_education_level.dart';
+import 'edit_daily_report.dart';
+import 'edit_monthly_topper.dart';
+import 'edit_std_name_list.dart';
+import 'register/add_student.dart';
 
 void main() {
   runApp(const MyApp());
@@ -149,7 +149,7 @@ class AdminsPanelPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => SignupPage()),
+                            builder: (context) => AddStudentPage()),
                       );
                     },
                   ),

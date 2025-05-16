@@ -24,11 +24,12 @@ class EducationLevelControlPage extends StatelessWidget {
 }
 
 class Student {
-   String name;
+  String name;
   // final String id;
-   String className;
+  String className;
   List<HifzData> hifzData;
   int totalJuzCompleted;
+  Map<String, bool> attendance; // Added missing field
 
   Student({
     required this.name,
@@ -36,6 +37,19 @@ class Student {
     required this.className,
     required this.hifzData,
     required this.totalJuzCompleted,
+    required this.attendance, // Added required parameter
+  });
+}
+
+class ClassData {
+  final String name;
+  final int studentCount;
+  final List<Student> students;
+
+  ClassData({
+    required this.name,
+    required this.studentCount,
+    required this.students,
   });
 }
 
@@ -47,6 +61,9 @@ class StudentListPage extends StatefulWidget {
 }
 
 class _StudentListPageState extends State<StudentListPage> {
+  late List<ClassData> classes;
+  String selectedClass = ''; // Added missing variable
+  
   final Map<String, List<String>> classStudents = {
     'حلقة أبي بكر الصديق': [
       'AFTHAB',
@@ -115,6 +132,34 @@ class _StudentListPageState extends State<StudentListPage> {
   void initState() {
     super.initState();
     students = _initializeStudents();
+    _initializeClasses(); // Added call to initialize classes
+    // Set initial selected class
+    if (classStudents.isNotEmpty) {
+      selectedClass = classStudents.keys.first;
+    }
+  }
+
+  void _initializeClasses() {
+    classes = classStudents.entries.map((entry) {
+      final className = entry.key;
+      final studentNames = entry.value;
+      final studentCount = studentNames.length;
+
+      return ClassData(
+        name: className,
+        studentCount: studentCount,
+        students: List.generate(
+          studentCount,
+          (index) => Student(
+            name: studentNames[index],
+            className: className,
+            attendance: {},
+            hifzData: [], // Added missing field
+            totalJuzCompleted: 0, // Added missing field
+          ),
+        ),
+      );
+    }).toList();
   }
 
   List<Student> _initializeStudents() {
@@ -129,6 +174,7 @@ class _StudentListPageState extends State<StudentListPage> {
             // id: idCounter.toString().padLeft(3, '0'),
             className: className,
             totalJuzCompleted: 0,
+            attendance: {}, // Added missing field value
             hifzData: [
               HifzData('Center', 0, const Color(0xFF6B48FF)),
               HifzData('Year 1', 0, const Color(0xFF4CAF50)),
@@ -149,6 +195,7 @@ class _StudentListPageState extends State<StudentListPage> {
   void _addClass(String className) {
     setState(() {
       classStudents[className] = [];
+      _initializeClasses(); // Re-initialize classes after adding
     });
   }
 
@@ -162,6 +209,7 @@ class _StudentListPageState extends State<StudentListPage> {
           name: studentName,
           className: className,
           totalJuzCompleted: 0,
+          attendance: {}, // Added missing field value
           hifzData: [
             HifzData('Center', 0, const Color(0xFF6B48FF)),
             HifzData('Year 1', 0, const Color(0xFF4CAF50)),
@@ -200,6 +248,27 @@ class _StudentListPageState extends State<StudentListPage> {
       // Remove the student from the classStudents map
       classStudents[student.className]?.remove(student.name);
     });
+  }
+
+  // New method to remove a class
+  void _removeClass(String className) {
+    setState(() {
+      classStudents.remove(className);
+      _initializeClasses();
+      
+      // If the deleted class was selected, select the first available class
+      if (selectedClass == className && classes.isNotEmpty) {
+        selectedClass = classes.first.name;
+      }
+      
+      _updateAttendanceCounts(); // Remove this line or implement the method
+    });
+  }
+
+  // Added missing method
+  void _updateAttendanceCounts() {
+    // Implementation depends on what this method is supposed to do
+    // This is just a placeholder
   }
 
   void _showAddClassDialog() {
@@ -308,6 +377,33 @@ class _StudentListPageState extends State<StudentListPage> {
     );
   }
 
+  // Dialog to confirm class deletion
+  void _showDeleteClassDialog(String className) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Class'),
+          content: Text('Are you sure you want to delete "$className"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () {
+                _removeClass(className);
+                Navigator.pop(context);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -359,6 +455,13 @@ class _StudentListPageState extends State<StudentListPage> {
               onPressed: _showAddClassDialog,
               tooltip: 'Add New Class',
             ),
+            // Fixed conditional check for classes
+            if (classStudents.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.white, size: 18),
+              onPressed: () => _showDeleteClassDialog(selectedClass),
+              tooltip: 'Delete Current Class',
+            ),
           ],
           backgroundColor: const Color(0xFF1E3C72),
         ),
@@ -402,7 +505,7 @@ class _StudentListPageState extends State<StudentListPage> {
                                 leading: CircleAvatar(
                                   backgroundColor: Colors.indigo.shade100,
                                   child: Text(
-                                    student.name[0],
+                                    student.name.isNotEmpty ? student.name[0] : '',
                                     style: TextStyle(
                                       color: Colors.indigo.shade700,
                                       fontWeight: FontWeight.bold,
@@ -862,6 +965,57 @@ class _HifzGraphPageState extends State<HifzGraphPage>
         ),
       ),
     );
+    }
+
+  Widget _buildLegend() {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Hifz Legend',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C3E50),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 16.0,
+              runSpacing: 12.0,
+              children: widget.student.hifzData.map((data) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: data.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${data.year}: ${data.juzCount} Juz',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPieChart() {
@@ -882,7 +1036,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
         child: Column(
           children: [
             const Text(
-              'Overall Progress Distribution',
+              'Juz Distribution Overview',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -891,101 +1045,64 @@ class _HifzGraphPageState extends State<HifzGraphPage>
             ),
             const SizedBox(height: 20),
             SizedBox(
-              height: 250,
+              height: 300,
               child: AnimatedBuilder(
                 animation: _animation,
                 builder: (context, child) {
+                  final List<PieChartSectionData> sections = [];
+                  
+                  // Calculate total for percentage
+                  final total = widget.student.hifzData
+                      .fold(0, (sum, data) => sum + data.juzCount);
+                  
+                  // Only show sectors for non-zero juz counts
+                  for (int i = 0; i < widget.student.hifzData.length; i++) {
+                    final data = widget.student.hifzData[i];
+                    if (data.juzCount > 0) {
+                      sections.add(
+                        PieChartSectionData(
+                          color: data.color,
+                          value: data.juzCount.toDouble(),
+                          title: '${(data.juzCount / total * 100).toStringAsFixed(1)}%',
+                          radius: 100 * _animation.value,
+                          titleStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                  
+                  if (sections.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No progress data available',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  }
+                  
                   return PieChart(
                     PieChartData(
+                      sections: sections,
+                      centerSpaceRadius: 0,
                       sectionsSpace: 2,
-                      centerSpaceRadius: 40,
-                      sections: [
-                        PieChartSectionData(
-                          value: widget.student.totalJuzCompleted.toDouble(),
-                          title:
-                              'Completed\n${widget.student.totalJuzCompleted} Juz',
-                          color: const Color(0xFF6B48FF),
-                          radius: 100 * _animation.value,
-                          titleStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        PieChartSectionData(
-                          value: (30 - widget.student.totalJuzCompleted)
-                              .toDouble(),
-                          title:
-                              'Remaining\n${30 - widget.student.totalJuzCompleted} Juz',
-                          color: const Color(0xFFE0E0E0),
-                          radius: 100 * _animation.value,
-                          titleStyle: const TextStyle(
-                            color: Color(0xFF2C3E50),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          // Handle touch events if needed
+                        },
+                      ),
                     ),
                   );
                 },
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLegend() {
-    return Card(
-      elevation: 8,
-      shadowColor: Colors.indigo,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            colors: [Colors.white, Color(0xFFF7F9FF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Journey Overview',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...widget.student.hifzData.map((data) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: data.color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${data.year}: ${data.juzCount} Juz',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF2C3E50),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
           ],
         ),
       ),
@@ -1005,4 +1122,294 @@ class HifzData {
   final Color color;
 
   HifzData(this.year, this.juzCount, this.color);
+}
+
+// Additional pages for complete application
+
+// class AdminsPanelPage extends StatelessWidget {
+//   const AdminsPanelPage({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text(
+//           'Admin Panel',
+//           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white70),
+//         ),
+//         backgroundColor: const Color(0xFF1E3C72),
+//       ),
+//       body: Container(
+//         decoration: BoxDecoration(
+//           gradient: LinearGradient(
+//             begin: Alignment.topCenter,
+//             end: Alignment.bottomCenter,
+//             colors: [
+//               Colors.teal.shade50,
+//               Colors.grey.shade50,
+//             ],
+//           ),
+//         ),
+//         child: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: GridView.count(
+//             crossAxisCount: 2,
+//             crossAxisSpacing: 16,
+//             mainAxisSpacing: 16,
+//             children: [
+//               _buildMenuCard(
+//                 context,
+//                 'Student Management',
+//                 Icons.people,
+//                 Colors.indigo,
+//                 () {
+//                   Navigator.push(
+//                     context,
+//                     MaterialPageRoute(
+//                       builder: (context) => const StudentListPage(),
+//                     ),
+//                   );
+//                 },
+//               ),
+//               _buildMenuCard(
+//                 context,
+//                 'Attendance',
+//                 Icons.calendar_today,
+//                 Colors.teal,
+//                 () {
+//                   // Navigate to attendance page
+//                   // Implement as needed
+//                 },
+//               ),
+//               _buildMenuCard(
+//                 context,
+//                 'Reports',
+//                 Icons.bar_chart,
+//                 Colors.amber,
+//                 () {
+//                   // Navigate to reports page
+//                   // Implement as needed
+//                 },
+//               ),
+//               _buildMenuCard(
+//                 context,
+//                 'Settings',
+//                 Icons.settings,
+//                 Colors.blueGrey,
+//                 () {
+//                   // Navigate to settings page
+//                   // Implement as needed
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildMenuCard(BuildContext context, String title, IconData icon, 
+//       MaterialColor color, VoidCallback onTap) {
+//     return Card(
+//       elevation: 6,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+//       child: InkWell(
+//         onTap: onTap,
+//         borderRadius: BorderRadius.circular(15),
+//         child: Container(
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(15),
+//             gradient: LinearGradient(
+//               colors: [color.shade50, Colors.white],
+//               begin: Alignment.topLeft,
+//               end: Alignment.bottomRight,
+//             ),
+//           ),
+//           padding: const EdgeInsets.all(16),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(
+//                 icon,
+//                 size: 48,
+//                 color: color.shade700,
+//               ),
+//               const SizedBox(height: 12),
+//               Text(
+//                 title,
+//                 style: TextStyle(
+//                   fontSize: 18,
+//                   fontWeight: FontWeight.bold,
+//                   color: color.shade800,
+//                 ),
+//                 textAlign: TextAlign.center,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+class AttendanceTrackingPage extends StatefulWidget {
+  final Student student;
+
+  const AttendanceTrackingPage({super.key, required this.student});
+
+  @override
+  _AttendanceTrackingPageState createState() => _AttendanceTrackingPageState();
+}
+
+class _AttendanceTrackingPageState extends State<AttendanceTrackingPage> {
+  late DateTime _selectedDate;
+  final Map<DateTime, bool> _attendance = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    _loadAttendance();
+  }
+
+  void _loadAttendance() {
+    // Convert string-based attendance data to DateTime-based
+    widget.student.attendance.forEach((dateStr, isPresent) {
+      final parts = dateStr.split('-');
+      if (parts.length == 3) {
+        try {
+          final date = DateTime(
+            int.parse(parts[0]),
+            int.parse(parts[1]),
+            int.parse(parts[2]),
+          );
+          _attendance[date] = isPresent;
+        } catch (e) {
+          // Handle parsing errors
+        }
+      }
+    });
+  }
+
+  void _saveAttendance() {
+    // Convert DateTime-based attendance back to string-based for storage
+    final Map<String, bool> attendanceData = {};
+    _attendance.forEach((date, isPresent) {
+      final dateStr = '${date.year}-${date.month}-${date.day}';
+      attendanceData[dateStr] = isPresent;
+    });
+    
+    setState(() {
+      widget.student.attendance = attendanceData;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '${widget.student.name}\'s Attendance',
+          style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white70),
+        ),
+        backgroundColor: const Color(0xFF1E3C72),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.teal.shade50,
+              Colors.grey.shade50,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // Calendar widget would go here
+            // Implement according to your calendar package
+            
+            const SizedBox(height: 20),
+            
+            // Attendance controls
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle, color: Colors.green),
+                    label: const Text('Present'),
+                    onPressed: () {
+                      setState(() {
+                        _attendance[_selectedDate] = true;
+                        _saveAttendance();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green.shade600,
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    label: const Text('Absent'),
+                    onPressed: () {
+                      setState(() {
+                        _attendance[_selectedDate] = false;
+                        _saveAttendance();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Attendance history
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: _attendance.length,
+                    itemBuilder: (context, index) {
+                      final date = _attendance.keys.elementAt(index);
+                      final isPresent = _attendance[date]!;
+                      
+                      return ListTile(
+                        leading: Icon(
+                          isPresent ? Icons.check_circle : Icons.cancel,
+                          color: isPresent ? Colors.green : Colors.red,
+                        ),
+                        title: Text(
+                          '${date.day}/${date.month}/${date.year}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          isPresent ? 'Present' : 'Absent',
+                          style: TextStyle(
+                            color: isPresent ? Colors.green.shade700 : Colors.red.shade700,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
