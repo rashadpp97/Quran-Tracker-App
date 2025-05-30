@@ -3,9 +3,9 @@ import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.da
 import 'package:quran_progress_tracker_app/view/Admin_panel/login_page.dart';
 import 'package:quran_progress_tracker_app/view/Teachers_panel/login_page.dart';
 
-import 'std_name_list_page.dart';
-import 'Students_panel/login_page.dart';
-import 'Teachers_panel/teachers_panel_page.dart';
+import '../std_name_list_page.dart';
+import '../Students_panel/login_page.dart';
+import '../Teachers_panel/teachers_panel_page.dart';
 
 class MainOptionPage extends StatelessWidget {
   const MainOptionPage({super.key});

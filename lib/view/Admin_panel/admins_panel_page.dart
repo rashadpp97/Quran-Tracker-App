@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../second_page.dart';
+import '../Splash_screen/second_page.dart';
 import 'edit_education_level.dart';
 import 'edit_daily_report.dart';
 import 'edit_monthly_topper.dart';

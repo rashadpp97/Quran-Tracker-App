@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   Future<void> login() async {
-    print('AAAAAAAAAAAAAAAAAA');
+    print('BBBBBBBBBBBBBB');
     print(_emailController.text);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(

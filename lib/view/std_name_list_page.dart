@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'second_page.dart';
+import 'Splash_screen/second_page.dart';
 import 'Students_panel/login_page.dart';
 
 void main() {

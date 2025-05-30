@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../second_page.dart';
+import '../Splash_screen/second_page.dart';
 import '../Students_panel/login_page.dart';
 
 
