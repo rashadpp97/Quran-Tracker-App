@@ -3,22 +3,6 @@ import '../second_page.dart';
 import 'edit_attendance.dart';
 import 'edit_daily_report.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const TeachersPanelPage(),
-    );
-  }
-}
-
 class TeachersPanelPage extends StatelessWidget {
   const TeachersPanelPage({super.key});
 
@@ -98,7 +82,7 @@ class TeachersPanelPage extends StatelessWidget {
                 children: [
                   _buildModernButton(
                     icon: Icons.assessment,
-                    label: 'Daily Report',
+                    title: 'Daily Report',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -108,7 +92,7 @@ class TeachersPanelPage extends StatelessWidget {
                   ),
                   _buildModernButton(
                     icon: Icons.calendar_month,
-                    label: 'Attendance',
+                    title: 'Attendance',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -126,65 +110,99 @@ class TeachersPanelPage extends StatelessWidget {
     );
   }
 
-Widget _buildModernButton({
-  required IconData icon,
-  required String label,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF001F3F), // Deep Navy Blue
-            Color(0xFF3D9970), // Dark Green
+  Widget _buildModernButton({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF001F3F), // Deep Navy Blue
+              Color(0xFF3D9970), // Dark Green
+            ],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF001F3F).withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 20,
+              offset: Offset(0, 8),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFF001F3F).withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 2,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Background pattern/effect
+              Positioned(
+                bottom: -20,
+                right: -20,
+                child: Opacity(
+                  opacity: 0.1,
+                  child: Icon(
+                    icon,
+                    size: 120,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            ),
-            child: Icon(
-              icon,
-              size: 32,
-              color: Colors.white,
-            ),
+              
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Icon with glow effect
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    
+                    // Title with small arrow indicator
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

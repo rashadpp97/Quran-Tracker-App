@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'second_page.dart';
-import 'Students_panel/login_screen_page.dart';
+import 'Students_panel/login_page.dart';
 
 void main() {
   runApp(const StudentsNameListPage());

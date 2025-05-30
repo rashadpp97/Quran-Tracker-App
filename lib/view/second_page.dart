@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
+import 'package:quran_progress_tracker_app/view/Admin_panel/login_page.dart';
+import 'package:quran_progress_tracker_app/view/Teachers_panel/login_page.dart';
 
 import 'std_name_list_page.dart';
-import 'Students_panel/login_screen_page.dart';
+import 'Students_panel/login_page.dart';
 import 'Teachers_panel/teachers_panel_page.dart';
 
 class MainOptionPage extends StatelessWidget {
@@ -120,7 +122,7 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TeachersPanelPage()));
+                                builder: (context) => TeachersLoginScreen(studentName: '', className: '', image: '',)));
                       },
                     ),
                   ],
@@ -133,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                     Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AdminsPanelPage()));
+                                builder: (context) => AdminLoginPage(studentName: '', className: '', image: '',)));
                   },
                 ),
               ],

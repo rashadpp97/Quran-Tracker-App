@@ -101,59 +101,28 @@ class _StudentsPerformancePageState extends State<StudentsPerformancePage> with 
                     ),
                   ),
                 ),
+                 // Circular logo
                 Positioned(
-                  top: 130,
+                  top: 150,
                   left: (screenSize.width / 2) - 60,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 73, 93, 72),
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: const Color.fromARGB(255, 245, 242, 242),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image.asset(
-                              widget.image,
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 73, 93, 72),
+                        width: 4,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      color: Colors.white,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image.asset(
+                        'assets/soq_logo.png', // Replace with your image path
+                        fit: BoxFit.contain,
                       ),
-                      Text(
-                        widget.className,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -182,38 +151,34 @@ class _StudentsPerformancePageState extends State<StudentsPerformancePage> with 
                 crossAxisSpacing: 20,
                 mainAxisSpacing: 20,
                 children: [
-                  _buildModernButton(
-                    icon: Icons.assessment,
-                    label: 'Daily Report',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ProgressTracker()),
-                    ),
-                  ),
-                  _buildModernButton(
-                    icon: Icons.calendar_month,
-                    label: 'Attendance',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AttendancePage(attendanceData: {})),
-                    ),
-                  ),
-                  _buildModernButton(
-                    icon: Icons.emoji_events,
-                    label: 'Monthly Topper',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MonthlyTopperPage(students: [],)),
-                    ),
-                  ),
-                  _buildModernButton(
-                    icon: Icons.school,
-                    label: 'Education Level',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HifzGraphPage()),
-                    ),
-                  ),
+                   _buildFeatureCard(
+                          context: context,
+                          title: 'Daily Report',
+                          icon: Icons.insert_chart_rounded,
+                          gradient: const [Color(0xFF001F3F), Color(0xFF142E4C)],
+                          page: const ProgressTracker(),
+                        ),
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Attendance',
+                          icon: Icons.calendar_today_sharp,
+                          gradient: const [Color(0xFF265C4B), Color(0xFF1A4733)],
+                          page: AttendancePage(attendanceData: {}),
+                        ),
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Monthly Topper',
+                          icon: Icons.emoji_events_rounded,
+                          gradient: const [Color(0xFF3D9970), Color(0xFF2D7254)],
+                          page: const MonthlyTopperPage(students: []),
+                        ),
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Education Level',
+                          icon: Icons.school_rounded,
+                          gradient: const [Color(0xFF001F3F), Color(0xFF3D9970)],
+                          page: const HifzGraphPage(),
+                        ),
                 ],
               ),
             ),
@@ -236,6 +201,103 @@ class _StudentsPerformancePageState extends State<StudentsPerformancePage> with 
           
             const SizedBox(height: 20),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required List<Color> gradient,
+    required Widget page,
+  }) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradient,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: gradient.last.withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Background pattern/effect
+              Positioned(
+                bottom: -20,
+                right: -20,
+                child: Opacity(
+                  opacity: 0.1,
+                  child: Icon(
+                    icon,
+                    size: 120,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Icon with glow effect
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    
+                    // Title with small arrow indicator
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

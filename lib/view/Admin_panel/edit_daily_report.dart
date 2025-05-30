@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'admins_panel_page.dart';
 
-void main() {
-  runApp(const ClassAddAndDeleteControlPage());
-}
 
 class ClassAddAndDeleteControlPage extends StatelessWidget {
   const ClassAddAndDeleteControlPage({super.key});
@@ -24,7 +21,7 @@ class ClassAddAndDeleteControlPage extends StatelessWidget {
 
 class Student {
   // final String id;
-  late String name;
+  String name;
   final int classNumber;
   final YearlyProgress yearlyProgress;
 
@@ -38,7 +35,7 @@ class Student {
 
 class QuranClass {
   final int classNumber;
-  final List<Student> students;
+  List<Student> students;
 
   QuranClass({
     required this.classNumber,
@@ -466,7 +463,7 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 56),
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 75),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -751,57 +748,166 @@ class _StudentListScreenState extends State<StudentListScreen> {
         ),
         backgroundColor: const Color(0xFF1E3C72),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8),
-        itemCount: widget.quranClass.students.length,
-        itemBuilder: (context, index) {
-          final student = widget.quranClass.students[index];
-          return _buildStudentCard(context, student, index);
-        },
+      body: widget.quranClass.students.isEmpty
+          ? const Center(
+              child: Text(
+                'No students added yet.\nTap the + button to add students.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: widget.quranClass.students.length,
+              itemBuilder: (context, index) {
+                final student = widget.quranClass.students[index];
+                return _buildStudentCard(context, student, index);
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddStudentDialog(widget.className),
+        backgroundColor: const Color(0xFF1E3C72),
+        child: const Icon(Icons.person_add, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildStudentCard(BuildContext context, Student student, int index) {
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    child: InkWell(
-      // Make the entire card tappable
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProgressTrackingScreen(student: student),
+  void _showAddStudentDialog(String className) {
+    final TextEditingController studentNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Student to $className'),
+          content: TextField(
+            controller: studentNameController,
+            decoration: const InputDecoration(
+              labelText: 'Student Name',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final studentName = studentNameController.text.trim();
+                if (studentName.isNotEmpty) {
+                  _addStudent(className, studentName);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
         );
       },
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF1E3C72),
-          child: Text(
-            student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
+    );
+  }
+
+  void _addStudent(String className, String studentName) {
+    setState(() {
+      widget.quranClass.students.add(Student(
+        name: studentName,
+        classNumber: widget.quranClass.classNumber,
+        yearlyProgress: _generateYearlyProgress(),
+      ));
+    });
+  }
+
+  YearlyProgress _generateYearlyProgress() {
+    List<MonthlyProgress> months = [];
+    final monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+
+    for (int m = 0; m < 12; m++) {
+      List<DailyProgress> days = [];
+      final daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m];
+
+      for (int d = 1; d <= daysInMonth; d++) {
+        days.add(DailyProgress(
+          date:
+              '${d.toString().padLeft(2, '0')}-${(m + 1).toString().padLeft(2, '0')}-2025',
+          newLesson: LessonProgress(),
+          juzLesson: LessonProgress(),
+          oldLesson: LessonProgress(),
+          juzCompleted: LessonProgress(),
+          juzRevision: LessonProgress(),
+          testPassed: LessonProgress(),
+          testFailed: LessonProgress(),
+        ));
+      }
+
+      months.add(MonthlyProgress(
+        month: monthNames[m],
+        dailyProgress: days,
+      ));
+    }
+
+    return YearlyProgress(
+      year: '2025',
+      monthlyProgress: months,
+    );
+  }
+
+  Widget _buildStudentCard(BuildContext context, Student student, int index) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 2,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProgressTrackingScreen(student: student),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: const Color(0xFF1E3C72),
+            child: Text(
+              student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          title: Text(
+            student.name,
             style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1E3C72),
+            ),
           ),
-        ),
-        title: Text(
-          student.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1E3C72), // Optional: Make the text color match your theme
-          ),
-        ),
-        // Optional: Add a subtle hint that this is clickable
-        subtitle: const Text(
-          "Tap to view progress",
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-        trailing: SizedBox(
-          width: 48, // Reduced width as we only have the menu button now
-          child: PopupMenuButton<String>(
+          // subtitle: const Text(
+          //   "Tap to view progress",
+          //   style: TextStyle(fontSize: 12, color: Colors.grey),
+          // ),
+          trailing: PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            padding: EdgeInsets.zero,
             onSelected: (value) {
               if (value == 'edit') {
                 _editStudent(context, student, index);
@@ -834,88 +940,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
           ),
         ),
       ),
-    ),
-  );
-}
-
-// Alternative version without subtitle if you prefer a cleaner look
-Widget _buildStudentCardSimple(BuildContext context, Student student, int index) {
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    child: InkWell(
-      // Make the entire card tappable
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProgressTrackingScreen(student: student),
-          ),
-        );
-      },
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF1E3C72),
-          child: Text(
-            student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        title: Row(
-          children: [
-            Text(
-              student.name,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.arrow_forward,
-              size: 16,
-              color: Colors.grey,
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          padding: EdgeInsets.zero,
-          onSelected: (value) {
-            if (value == 'edit') {
-              _editStudent(context, student, index);
-            } else if (value == 'delete') {
-              _deleteStudent(context, student, index);
-            }
-          },
-          itemBuilder: (BuildContext context) => [
-            const PopupMenuItem<String>(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
 
   void _editStudent(BuildContext context, Student student, int index) {
-    // final TextEditingController nameController = TextEditingController(text: student.name);
     final nameController = TextEditingController(text: student.name);
 
     showDialog(
@@ -924,8 +952,11 @@ Widget _buildStudentCardSimple(BuildContext context, Student student, int index)
         title: const Text('Edit Student'),
         content: TextField(
           controller: nameController,
-          decoration: const InputDecoration(labelText: 'Student Name'),
-          autofocus: true, // Automatically focus the text field
+          decoration: const InputDecoration(
+            labelText: 'Student Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
         ),
         actions: [
           TextButton(
@@ -934,14 +965,13 @@ Widget _buildStudentCardSimple(BuildContext context, Student student, int index)
           ),
           TextButton(
             onPressed: () {
-              // Update the student name
               final updatedName = nameController.text.trim();
               if (updatedName.isNotEmpty) {
                 setState(() {
                   widget.quranClass.students[index].name = updatedName;
                 });
+                Navigator.pop(context);
               }
-              Navigator.pop(context);
             },
             child: const Text('Save'),
           ),
@@ -964,7 +994,6 @@ Widget _buildStudentCardSimple(BuildContext context, Student student, int index)
           TextButton(
             onPressed: () {
               setState(() {
-                // Remove the student from the list
                 widget.quranClass.students.removeAt(index);
               });
               Navigator.pop(context);

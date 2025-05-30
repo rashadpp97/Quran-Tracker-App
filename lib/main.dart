@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/edit_monthly_topper.dart';
-import 'package:quran_progress_tracker_app/view/Students_panel/login_screen_page.dart';
+import 'package:quran_progress_tracker_app/view/Students_panel/login_page.dart';
 import 'package:quran_progress_tracker_app/view/Students_panel/monthly_topper.dart';
 import 'package:quran_progress_tracker_app/view_model/admin_provider.dart';
+import 'view/Admin_panel/edit_daily_report.dart';
+import 'view/Admin_panel/edit_std_name_list.dart';
 import 'view/Admin_panel/register/add_student.dart';
 import 'view/Admin_panel/register/sign_up_page.dart';
+import 'view/Students_panel/profile_form.dart';
 import 'view/first_screen.dart';
 import 'firebase_options.dart';
 

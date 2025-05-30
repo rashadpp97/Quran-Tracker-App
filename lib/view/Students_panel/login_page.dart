@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/register/sign_up_page.dart';
+import 'package:quran_progress_tracker_app/view/Students_panel/profile_form.dart';
 // import 'signup_screen.dart';
 import 'std_performanse_page.dart';
 
@@ -27,15 +28,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+
 
   Future<void> login() async {
+    print('AAAAAAAAAAAAAAAAAA');
+    print(_emailController.text);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        email: _emailController.text,
+        password: _passwordController.text,
       );
+          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Login successful!"),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => StudentsPerformancePage(name: '', className: '', image: '',)));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login failed: $e")));
@@ -172,6 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                         
                         try {
+                          login();
                           // You may want to handle Firebase authentication here
                           // For now, I'll comment it out since it has empty credentials
                           /*
@@ -189,15 +198,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                           
-                          // Navigate to the StudentsPerformancePage after successful login
+                          // Navigate to the ProfileForm Page after successful login
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StudentsPerformancePage(
-                                name: widget.studentName,
-                                className: widget.className,
-                                image: widget.image,
+                              builder: (context) => ProfileFormPage(
                               ),
+                              //  builder: (context) => StudentsPerformancePage(
+                              //   name: widget.studentName,
+                              //   className: widget.className,
+                              //   image: widget.image,
+                              // ),
                             ),
                           );
                         } catch (e) {
@@ -226,33 +237,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
-                    // Sign UP option
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Don't have an account?"),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SignUpPage(studentName: '', className: '', image: '',),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                color: Color(0xFF0D47A1),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  // const SizedBox(height: 5),
+                  //   // Sign UP option
+                  //   Center(
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         const Text("Don't have an account?"),
+                  //         TextButton(
+                  //           onPressed: () {
+                  //             Navigator.push(
+                  //               context,
+                  //               MaterialPageRoute(
+                  //                 builder: (context) => const SignUpPage(studentName: '', className: '', image: '',),
+                  //               ),
+                  //             );
+                  //           },
+                  //           // child: const Text(
+                  //           //   "Sign Up",
+                  //           //   style: TextStyle(
+                  //           //     color: Color(0xFF0D47A1),
+                  //           //     fontWeight: FontWeight.bold,
+                  //           //   ),
+                  //           // ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
                 ],
               ),
             ),

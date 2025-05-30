@@ -166,8 +166,8 @@ class _MonthlyTopperPageState extends State<MonthlyTopperControlPage>
         assetImage: "assets/Adhil.png",
         gradient: const LinearGradient(
           colors: [
-            Color.fromARGB(255, 168, 99, 111),
-            Color.fromARGB(255, 214, 122, 164)
+             Color.fromARGB(255, 225, 221, 104),
+            Color.fromARGB(255, 206, 203, 43)
           ],
         ),
       ),
@@ -213,8 +213,8 @@ class _MonthlyTopperPageState extends State<MonthlyTopperControlPage>
         assetImage: "assets/Zayan.png",
         gradient: const LinearGradient(
           colors: [
-            Color.fromARGB(255, 168, 99, 111),
-            Color.fromARGB(255, 214, 122, 164)
+            Color.fromARGB(255, 225, 221, 104),
+            Color.fromARGB(255, 206, 203, 43)
           ],
         ),
       ),
@@ -262,8 +262,8 @@ class _MonthlyTopperPageState extends State<MonthlyTopperControlPage>
           assetImage: "",
           gradient: const LinearGradient(
             colors: [
-              Color.fromARGB(255, 168, 99, 111),
-              Color.fromARGB(255, 214, 122, 164)
+               Color.fromARGB(255, 225, 221, 104),
+            Color.fromARGB(255, 206, 203, 43)
             ],
           ),
         ),
@@ -281,6 +281,7 @@ class _MonthlyTopperPageState extends State<MonthlyTopperControlPage>
   // Initialize the image picker in your class
 final ImagePicker picker = ImagePicker();
 
+// Update the _editStudent method to include a delete option
 Future<void> _editStudent(HifzStudent student) async {
   final TextEditingController nameController =
       TextEditingController(text: student.name);
@@ -357,6 +358,15 @@ Future<void> _editStudent(HifzStudent student) async {
               ),
             ),
             actions: [
+              // Add delete button
+              TextButton.icon(
+                onPressed: () {
+                  // Show confirmation dialog before deleting
+                  _confirmDeleteStudent(student);
+                },
+                icon: const Icon(Icons.delete, color: Colors.red),
+                label: const Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel'),
@@ -399,6 +409,92 @@ Future<void> _editStudent(HifzStudent student) async {
         },
       );
     },
+  );
+}
+
+// Add a confirmation dialog for student deletion
+Future<void> _confirmDeleteStudent(HifzStudent student) async {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Are you sure you want to delete ${student.name}?'),
+              const SizedBox(height: 16),
+              const Text(
+                'This action cannot be undone.',
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Delete the student
+              _deleteStudent(student);
+              // Close both dialogs
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Method to delete a student from the list
+void _deleteStudent(HifzStudent student) {
+  setState(() {
+    // Remove the student from the current month's data
+    academicYear[_currentMonthIndex].students.remove(student);
+    
+    // If we've removed all students, add an empty placeholder student
+    if (academicYear[_currentMonthIndex].students.isEmpty) {
+      academicYear[_currentMonthIndex].students.add(
+        HifzStudent(
+          name: "",
+          points: 0,
+          assetImage: "",
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1E88E5), Color(0xFF64B5F6)],
+          ),
+        ),
+      );
+    }
+    
+    // Update the current students list
+    currentStudents = academicYear[_currentMonthIndex].students;
+    
+    // Save the updated data
+    StudentDataService.saveData(academicYear);
+  });
+  
+  // Show success message
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('${student.name} has been deleted'),
+      backgroundColor: Colors.redAccent,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
   );
 }
 
@@ -541,7 +637,7 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
   }
 }
 
-  // Fix the month navigation to handle year changes
+
   // Fixed month navigation to handle year changes
   void _nextMonth() {
     setState(() {
@@ -676,8 +772,8 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
           assetImage: "",
           gradient: const LinearGradient(
             colors: [
-              Color.fromARGB(255, 168, 99, 111),
-              Color.fromARGB(255, 214, 122, 164)
+              Color.fromARGB(255, 225, 221, 104),
+            Color.fromARGB(255, 206, 203, 43)
             ],
           ),
         ),
@@ -782,8 +878,8 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
           assetImage: "",
           gradient: const LinearGradient(
             colors: [
-              Color.fromARGB(255, 168, 99, 111),
-              Color.fromARGB(255, 214, 122, 164)
+               Color.fromARGB(255, 225, 221, 104),
+            Color.fromARGB(255, 206, 203, 43)
             ],
           ),
         ),
@@ -900,7 +996,7 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
   void _showYearPicker(BuildContext context) {
     // Generate list of years from 2020 to 2040
     List<String> years =
-        List.generate(21, (index) => (2020 + index).toString());
+        List.generate(31, (index) => (2020 + index).toString());
 
     // Get the current year from the academicYear data
     String selectedYear = _selectedYear;
@@ -1403,7 +1499,7 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: const Text(
-                "Other Top Performers",
+                "OTHER TOP PERFORMERS",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -1729,21 +1825,3 @@ class StudentDataService {
   }
 }
 
-// Optional: Create a main app entry point class
-class HifzChampionsApp extends StatelessWidget {
-  const HifzChampionsApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hifz Champions',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        fontFamily: 'Poppins',
-      ),
-      home: const MonthlyTopperControlPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}

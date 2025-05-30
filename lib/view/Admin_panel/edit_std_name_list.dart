@@ -6,11 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../second_page.dart';
-import '../Students_panel/login_screen_page.dart';
+import '../Students_panel/login_page.dart';
 
-void main() {
-  runApp(const StudentsNameListControlPage());
-}
 
 class StudentsNameListControlPage extends StatelessWidget {
   const StudentsNameListControlPage({super.key});
