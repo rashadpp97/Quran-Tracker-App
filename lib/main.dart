@@ -10,6 +10,7 @@ import 'view/Admin_panel/edit_daily_report.dart';
 import 'view/Admin_panel/edit_std_name_list.dart';
 import 'view/Admin_panel/register/add_student.dart';
 import 'view/Admin_panel/register/sign_up_page.dart';
+import 'view/Students_data_screen.dart/std_data_screen.dart';
 import 'view/Students_panel/profile_form.dart';
 import 'view/Splash_screen/first_splash_screen.dart';
 import 'firebase_options.dart';

@@ -2,57 +2,101 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/register/sign_up_page.dart';
 import 'package:quran_progress_tracker_app/view/Students_panel/profile_form.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'teachers_panel_page.dart';
-// import 'signup_screen.dart';
 
 class TeachersLoginScreen extends StatefulWidget {
-  const TeachersLoginScreen(
-      {super.key,
+  const TeachersLoginScreen({
+    super.key,
+    required this.studentName,
+    // required this.studentId,
+    required this.className,
+    required this.image,
+  });
 
-  required this.studentName,
-  // required this.studentId,
-  required this.className,
-  required this.image, });
-      
   final String studentName;
   // final String studentId;
   final String className;
   final String image;
 
   @override
-  State<TeachersLoginScreen> createState() => _LoginScreenState();
+  State<TeachersLoginScreen> createState() => _TeachersLoginScreenState();
 }
 
-class _LoginScreenState extends State<TeachersLoginScreen> {
-  // Controllers for TextFields
+class _TeachersLoginScreenState extends State<TeachersLoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
+  Future<void> loginUser(email, password) async {
+    print(email);
+    print(password);
 
-  Future<void> login() async {
-    print('CCCCCCCCCCCCCCCC');
-    print(_emailController.text);
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+    // final email = _emailController.text.trim();
+    // final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter email and password")),
       );
-          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Login successful!"),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TeachersPanelPage()));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Check if this email was already used once
+      // final doc = await FirebaseFirestore.instance
+      //     .collection('used_logins')
+      //     .doc(email)
+      //     .get();
+
+      // if (doc.exists) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text("This login has already been used.")),
+      //   );
+      //   setState(() => _isLoading = false);
+      //   return;
+      // }
+
+      // Sign in using Firebase Auth
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Mark as used
+      // await FirebaseFirestore.instance
+      //     .collection('used_logins')
+      //     .doc(email)
+      //     .set({'used': true, 'timestamp': Timestamp.now()});
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const TeachersPanelPage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = "Login failed";
+      print(e);
+      if (e.code == 'user-not-found') message = "User not found.";
+      if (e.code == 'wRrong-password') message = "Wrong password.";
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
-
-  // Toggle for password visibility
-  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -165,106 +209,31 @@ class _LoginScreenState extends State<TeachersLoginScreen> {
                   // Login button
                   Center(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        // Get the user input
-                        String username = _emailController.text;
-                        String password = _passwordController.text;
-
-                        // Basic validation
-                        if (username.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Please fill in both fields."),
-                            ),
-                          );
-                          return;
-                        }
-                        
-                        try {
-                          login();
-                          // You may want to handle Firebase authentication here
-                          // For now, I'll comment it out since it has empty credentials
-                          /*
-                          await FirebaseAuth.instance.signInWithEmailAndPassword(
-                            email: username, 
-                            password: password,
-                          );
-                          */
-                          
-                          // Show success message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Login successful!"),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                          
-                          // Navigate to the TeachetrsPanelPage after successful login
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TeachersPanelPage(
-                              ),
-                              //  builder: (context) => StudentsPerformancePage(
-                              //   name: widget.studentName,
-                              //   className: widget.className,
-                              //   image: widget.image,
-                              // ),
-                            ),
-                          );
-                        } catch (e) {
-                          // Show error message if authentication fails
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Authentication failed: ${e.toString()}"),
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () => loginUser(
+                              _emailController.text, _passwordController.text),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0D47A1),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                        backgroundColor: const Color(0xFF0D47A1),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 100, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white))
+                          : const Text(
+                              "Login",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
                     ),
                   ),
-                  // const SizedBox(height: 5),
-                  //   // Sign UP option
-                  //   Center(
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         const Text("Don't have an account?"),
-                  //         TextButton(
-                  //           onPressed: () {
-                  //             Navigator.push(
-                  //               context,
-                  //               MaterialPageRoute(
-                  //                 builder: (context) => const SignUpPage(studentName: '', className: '', image: '',),
-                  //               ),
-                  //             );
-                  //           },
-                  //           // child: const Text(
-                  //           //   "Sign Up",
-                  //           //   style: TextStyle(
-                  //           //     color: Color(0xFF0D47A1),
-                  //           //     fontWeight: FontWeight.bold,
-                  //           //   ),
-                  //           // ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
                 ],
               ),
             ),

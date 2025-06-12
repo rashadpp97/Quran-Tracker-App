@@ -551,7 +551,7 @@ class _MonthlyTopperPageState extends State<MonthlyTopperPage>
             colors: [Colors.blue, Colors.purple],
           ).createShader(bounds),
           child: const Text(
-            'Hifz Champions',
+            'STAR OF THE MONTH',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

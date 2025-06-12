@@ -916,7 +916,7 @@ Future<void> _pickImage(HifzStudent student, ImageSource source, StateSetter set
             colors: [Colors.blue, Colors.purple],
           ).createShader(bounds),
           child: const Text(
-            'Hifz Champions',
+            'STAR OF THE MONTH',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

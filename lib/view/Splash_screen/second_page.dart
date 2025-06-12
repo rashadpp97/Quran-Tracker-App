@@ -135,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                     Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AdminLoginPage(studentName: '', className: '', image: '',)));
+                                builder: (context) => AdminLoginScreen(studentName: '', className: '', image: '',)));
                   },
                 ),
               ],
