@@ -3,21 +3,6 @@ import 'package:flutter/material.dart';
 import 'Splash_screen/second_page.dart';
 import 'Students_panel/login_page.dart';
 
-void main() {
-  runApp(const StudentsNameListPage());
-}
-
-class StudentsNameListPage extends StatelessWidget {
-  const StudentsNameListPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: StudentDetailsScreen(),
-    );
-  }
-}
 
 class StudentDetailsScreen extends StatefulWidget {
   const StudentDetailsScreen({super.key});

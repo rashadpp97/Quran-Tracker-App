@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'package:quran_progress_tracker_app/view/Students_panel/std_performanse_page.dart';
+
+import '../../view_model/credential_provider.dart';
 
 class ProfileFormPage extends StatefulWidget {
   const ProfileFormPage({super.key});
@@ -76,6 +79,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
         'guardianContact': _guardianContactController.text.trim(),
         'address': _addressController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
+        'email': context.read<CredentialProvider>().email,
       };
 
       print("Student data prepared: $studentData");
@@ -273,7 +277,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     TextEditingController controller,
     String hintText,
     IconData icon, [
-    TextInputType inputType = TextInputType.text,
+    TextInputType inputType = TextInputType.phone,
   ]) {
     return Container(
       decoration: BoxDecoration(

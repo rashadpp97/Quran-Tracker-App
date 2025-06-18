@@ -2,26 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'teachers_panel_page.dart';
 
-void main() {
-  runApp(const DailyReportControlPage());
-}
-
-class DailyReportControlPage extends StatelessWidget {
-  const DailyReportControlPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Quran Progress Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFFF5F6FA),
-      ),
-      home: const ClassSelectionScreen(),
-    );
-  }
-}
 
 class Student {
   // final String id;
@@ -131,14 +111,14 @@ class YearlyProgress {
   }
 }
 
-class ClassSelectionScreen extends StatefulWidget {
-  const ClassSelectionScreen({super.key});
+class DailyReportControlPage extends StatefulWidget {
+  const DailyReportControlPage({super.key});
 
   @override
-  State<ClassSelectionScreen> createState() => _ClassSelectionScreenState();
+  State<DailyReportControlPage> createState() => _DailyReportControlPageState();
 }
 
-class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
+class _DailyReportControlPageState extends State<DailyReportControlPage> {
   late List<QuranClass> classes;
 
   @override

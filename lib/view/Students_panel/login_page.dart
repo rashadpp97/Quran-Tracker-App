@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:quran_progress_tracker_app/functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quran_progress_tracker_app/view/Students_panel/profile_form.dart';
+
+import '../../view_model/credential_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -26,76 +30,79 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  Future<void> loginUser(email,password) async {
-    print(email);
-    print(password);
+  // Future<void> loginUser(email,password) async {
+  //   print(email);
+  //   print(password);
 
-    // final email = _emailController.text.trim();
-    // final password = _passwordController.text.trim();
+  //   // final email = _emailController.text.trim();
+  //   // final password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter email and password")),
-      );
-      return;
-    }
+  //   if (email.isEmpty || password.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("Please enter email and password")),
+  //     );
+  //     return;
+  //   }
 
-    setState(() => _isLoading = true);
+  //   setState(() => _isLoading = true);
 
-    try {
-      // Check if this email was already used once
-      // final doc = await FirebaseFirestore.instance
-      //     .collection('used_logins')
-      //     .doc(email)
-      //     .get();
+  //   try {
+  //     // Check if this email was already used once
+  //     // final doc = await FirebaseFirestore.instance
+  //     //     .collection('used_logins')
+  //     //     .doc(email)
+  //     //     .get();
 
-      // if (doc.exists) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text("This login has already been used.")),
-      //   );
-      //   setState(() => _isLoading = false);
-      //   return;
-      // }
+  //     // if (doc.exists) {
+  //     //   ScaffoldMessenger.of(context).showSnackBar(
+  //     //     const SnackBar(content: Text("This login has already been used.")),
+  //     //   );
+  //     //   setState(() => _isLoading = false);
+  //     //   return;
+  //     // }
 
-      // Sign in using Firebase Auth
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+  //     // Sign in using Firebase Auth
+  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //       email: email,
+  //       password: password,
+  //     );
 
-      // Mark as used
-      // await FirebaseFirestore.instance
-      //     .collection('used_logins')
-      //     .doc(email)
-      //     .set({'used': true, 'timestamp': Timestamp.now()});
+  //     // Mark as used
+  //     // await FirebaseFirestore.instance
+  //     //     .collection('used_logins')
+  //     //     .doc(email)
+  //     //     .set({'used': true, 'timestamp': Timestamp.now()});
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     await prefs.setBool('isLoggedIn', true);
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const ProfileFormPage()),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      String message = "Login failed";
-      print(e);
-      if (e.code == 'user-not-found') message = "User not found.";
-      if (e.code == 'wRrong-password') message = "Wrong password.";
+  //     if (mounted) {
+  //       context.read<CredentialProvider>().setEmail(email);
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => const ProfileFormPage()),
+  //       );
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     String message = "Login failed";
+  //     print(e);
+  //     if (e.code == 'user-not-found') message = "User not found.";
+  //     if (e.code == 'wRrong-password') message = "Wrong password.";
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Error: ${e.toString()}")),
+  //     );
+  //   } finally {
+  //     setState(() => _isLoading = false);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
+    _emailController.text = "aa@gmail.com";
+    _passwordController.text = "111111";
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -190,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 40),
                   Center(
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => loginUser(_emailController.text, _passwordController.text),
+                      onPressed: _isLoading ? null : () => Functions.loginUser(_emailController.text, _passwordController.text, context, UserRole.student),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0D47A1),
                         padding: const EdgeInsets.symmetric(

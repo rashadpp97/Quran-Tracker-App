@@ -2,27 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
 
-void main() {
-  runApp(const EducationLevelControlPage());
-}
-
-class EducationLevelControlPage extends StatelessWidget {
-  const EducationLevelControlPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hifz Progress Tracker',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFFF8F9FD),
-      ),
-      home: const StudentListPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 class Student {
   String name;
   // final String id;
@@ -53,14 +32,14 @@ class ClassData {
   });
 }
 
-class StudentListPage extends StatefulWidget {
-  const StudentListPage({super.key});
+class EducationLevelControlPage extends StatefulWidget {
+  const EducationLevelControlPage({super.key});
 
   @override
-  _StudentListPageState createState() => _StudentListPageState();
+  _EducationLevelControlPageState createState() => _EducationLevelControlPageState();
 }
 
-class _StudentListPageState extends State<StudentListPage> {
+class _EducationLevelControlPageState extends State<EducationLevelControlPage> {
   late List<ClassData> classes;
   String selectedClass = ''; // Added missing variable
   
@@ -1166,7 +1145,7 @@ class HifzData {
 //                   Navigator.push(
 //                     context,
 //                     MaterialPageRoute(
-//                       builder: (context) => const StudentListPage(),
+//                       builder: (context) => const EducationLevelControlPage(),
 //                     ),
 //                   );
 //                 },

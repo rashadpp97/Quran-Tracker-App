@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/login_page.dart';
 import 'package:quran_progress_tracker_app/view/Teachers_panel/login_page.dart';
 
+import '../../view_model/credential_provider.dart';
 import '../std_name_list_page.dart';
 import '../Students_panel/login_page.dart';
 import '../Teachers_panel/teachers_panel_page.dart';
@@ -55,7 +57,7 @@ class HomeScreen extends StatelessWidget {
               // Logo with outline positioned above the container
               Positioned(
                 top: 150, // Move the CircleAvatar upward
-                left: (screenSize.width / 2)-60,
+                left: (screenSize.width / 2) - 60,
                 child: Container(
                   width: 120, // Diameter of the outline
                   height: 120,
@@ -102,40 +104,52 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildOptionCard(
-                      icon: Icons.school,
-                      label: 'Student',
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen(studentName: '', className: '', image: '',)));
-                      },
-                    ),
-                    _buildOptionCard(
-                      icon: Icons.person,
-                      label: "Teacher's Panel",
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TeachersLoginScreen(studentName: '', className: '', image: '',)));
-                      },
-                    ),
-                  ],
+                _buildOptionCard(
+                  context,
+                  icon: Icons.school,
+                  label: 'Student',
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoginScreen(
+                                  studentName: '',
+                                  className: '',
+                                  image: '',
+                                )));
+                  },
                 ),
                 SizedBox(height: 20),
                 _buildOptionCard(
+                  context,
+                  icon: Icons.person,
+                  label: "Teacher's Panel",
+                  onTap: () {
+                    // context.read<UserRoleProvider>().getUserRole(context.read<CredentialProvider>().email ?? '');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TeachersLoginScreen(
+                                  studentName: '',
+                                  className: '',
+                                  image: '',
+                                )));
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildOptionCard(
+                  context,
                   icon: Icons.person_outline,
                   label: "Admin's Panel",
                   onTap: () {
                     Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AdminLoginScreen(studentName: '', className: '', image: '',)));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AdminLoginScreen(
+                                  studentName: '',
+                                  className: '',
+                                  image: '',
+                                )));
                   },
                 ),
               ],
@@ -147,29 +161,40 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Widget for each option card
-  Widget _buildOptionCard(
+  Widget _buildOptionCard(BuildContext context,
       {required IconData icon,
       required String label,
       required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            height: 100,
-            width: 100,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 20, 95, 156),
-              borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 100,
+        // Adjusted Width maximimum of 300 or the screen width minus padding
+        width: MediaQuery.of(context).size.width - 80 > 400
+            ? 400
+            : MediaQuery.of(context).size.width - 80,
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 20, 95, 156),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Icon(icon, color: Colors.white, size: 50),
             ),
-            child: Icon(icon, color: Colors.white, size: 50),
-          ),
-          SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(fontSize: 16, color: Colors.black),
-          ),
-        ],
+            SizedBox(width: 20),
+            Align(
+              alignment: Alignment.center,
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
+            ),
+          ],
+        ),
       ),
     );
   }
