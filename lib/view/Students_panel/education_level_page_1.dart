@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-
 class HifzGraphPage extends StatefulWidget {
   const HifzGraphPage({super.key});
 
@@ -152,7 +151,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                         const Text(
                           'Juz Completed',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             color: Color.fromARGB(255, 124, 138, 139),
                           ),
                         ),
@@ -206,7 +205,12 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                       barTouchData: BarTouchData(
                         enabled: true,
                         touchTooltipData: BarTouchTooltipData(
-                          // tooltipBgColor: Colors.blueGrey,
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              rod.toY.toString(),
+                              const TextStyle(color: Colors.white),
+                            );
+                          },
                           tooltipRoundedRadius: 8,
                         ),
                       ),
@@ -256,34 +260,11 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                           barRods: [
                             BarChartRodData(
                               toY: entry.value.juzCount * _animation.value,
-                              color: entry.key ==
-                                      0 // Replace `regionalKey` with the key for "Regional"
-                                  ? Colors
-                                      .green // Color for "Regional" Juz value
-                                  : entry.value
-                                      .color, // Default color for other values
+                              color: entry.value.color,
                               width: 35,
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(6),
                               ),
-                              gradient: entry.key == 0
-                                  ? LinearGradient(
-                                      colors: [
-                                        Colors.lime, // Top color for "Regional"
-                                        Colors
-                                            .lime, // Bottom color for "Regional"
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                    )
-                                  : LinearGradient(
-                                      colors: [
-                                        entry.value.color,
-                                        entry.value.color,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                    ),
                             ),
                           ],
                         );
@@ -386,7 +367,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Journey Overview',
+              'Hifz Overview',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -410,9 +391,9 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                       Text(
                         '${data.year}: ${data.juzCount} Juz',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Color(0xFF2C3E50),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],

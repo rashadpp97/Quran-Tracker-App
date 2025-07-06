@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Teachers_panel/edit_daily_report.dart';
+import 'package:quran_progress_tracker_app/view/Teachers_panel/teachers_panel_page.dart';
+import 'edit_daily_report.dart';
 
 class StudentScreen extends StatefulWidget {
   const StudentScreen({super.key});
@@ -138,7 +139,7 @@ class _StudentScreenState extends State<StudentScreen> {
                 : FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection('students')
-                        .where('class', isEqualTo: selectedClass)
+                        .where('class', isEqualTo: '${selectedClass}')
                         .get(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -503,7 +504,7 @@ class _StudentScreenState extends State<StudentScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DailyReportControlPage(),
+                              builder: (context) => TeachersPanelPage(),
                             ),
                           );
                         },

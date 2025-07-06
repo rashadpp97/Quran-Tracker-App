@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/register/sign_up_page.dart';
 import 'package:quran_progress_tracker_app/view/Students_panel/profile_form.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'std_data_screen.dart';
 import 'teachers_panel_page.dart';
 
 class TeachersLoginScreen extends StatefulWidget {
@@ -78,7 +79,7 @@ class _TeachersLoginScreenState extends State<TeachersLoginScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const TeachersPanelPage()),
+          MaterialPageRoute(builder: (_) => const StudentScreen()),
         );
       }
     } on FirebaseAuthException catch (e) {
