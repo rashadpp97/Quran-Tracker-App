@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'teachers_panel_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quran_progress_tracker_app/view/Teachers_panel/teachers_panel_page.dart';
 
 void main() {
   runApp(const DailyReportControlPage());
@@ -18,226 +18,17 @@ class DailyReportControlPage extends StatelessWidget {
         primarySwatch: Colors.indigo,
         scaffoldBackgroundColor: const Color(0xFFF5F6FA),
       ),
-      home: const ClassSelectionScreen(),
+      home: ProgressTrackingScreen(student: _createSampleStudent()),
     );
   }
-}
 
-class Student {
-  // final String id;
-  late  String name;
-        int classNumber;
-        YearlyProgress yearlyProgress;
-
-  Student({
-    // required this.id,
-    required this.name,
-    required this.classNumber,
-    required this.yearlyProgress,
-  });
-}
-
-class QuranClass {
-  final int classNumber;
-         List<Student> students;
-
-  QuranClass({
-    required this.classNumber,
-    required this.students,
-  });
-}
-
-class LessonProgress {
-  bool completed;
-  bool isDefault;
-  int? lines;
-  int? pages;
-  bool isRead;
-  bool hasHifzLesson;
-
-  LessonProgress({
-    this.completed = false,
-    this.isDefault = true,
-    this.lines,
-    this.pages,
-    this.isRead = false,
-    this.hasHifzLesson = false,
-  });
-
-  int calculatePoints() {
-    if (!completed) return 0;
-    if (lines != null) return lines!;
-    if (pages != null) return pages!;
-    return 0;
-  }
-}
-
-class DailyProgress {
-  final String date;
-  LessonProgress newLesson;
-  LessonProgress juzLesson;
-  LessonProgress oldLesson;
-  LessonProgress juzCompleted;
-  LessonProgress juzRevision;
-  LessonProgress testPassed;
-  LessonProgress testFailed;
-
-  DailyProgress({
-    required this.date,
-    required this.newLesson,
-    required this.juzLesson,
-    required this.oldLesson,
-    required this.juzCompleted,
-    required this.juzRevision,
-    required this.testPassed,
-    required this.testFailed, 
-  });
-
-  int calculateDailyPoints() {
-    return newLesson.calculatePoints() +
-        juzLesson.calculatePoints() +
-        oldLesson.calculatePoints() +
-        testPassed.calculatePoints();
-  }
-}
-
-class MonthlyProgress {
-  final String month;
-  final List<DailyProgress> dailyProgress;
-
-  MonthlyProgress({
-    required this.month,
-    required this.dailyProgress,
-  });
-
-  int calculateMonthlyPoints() {
-    return dailyProgress.fold(
-        0, (sum, daily) => sum + daily.calculateDailyPoints());
-  }
-}
-
-class YearlyProgress {
-  final String year;
-  final List<MonthlyProgress> monthlyProgress;
-
-  YearlyProgress({
-    required this.year,
-    required this.monthlyProgress,
-  });
-
-  int calculateYearlyPoints() {
-    return monthlyProgress.fold(
-        0, (sum, month) => sum + month.calculateMonthlyPoints());
-  }
-}
-
-class ClassSelectionScreen extends StatefulWidget {
-  const ClassSelectionScreen({super.key});
-
-  @override
-  State<ClassSelectionScreen> createState() => _ClassSelectionScreenState();
-}
-
-class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
-  late List<QuranClass> classes;
-
-  @override
-  void initState() {
-    super.initState();
-    classes = _generateClasses();
-  }
-
-  List<QuranClass> _generateClasses() {
-    final classNames = [
-      'حلقة أبي بكر الصديق',
-      'حلقة عمر بن الخطاب',
-      'حلقة عثمان بن عفان',
-      'حلقة علي بن أبي طالب',
-      'حلقة سعد بن أبي وقاص'
-    ];
-
-    final studentNames = {
-      'حلقة أبي بكر الصديق': [
-        'AFTHAB',
-        'BILAL',
-        'AZMI JUNAID',
-        'HADI HASSAN',
-        'HAMIZ HARSHAD',
-        'MUHAMMED ARSHAD',
-        'YAHYA',
-        "ABDUL MUA'D",
-        'FARIS AHMED',
-        'SULTHAN'
-      ],
-      'حلقة عمر بن الخطاب': [
-        "MUA'D ANWAR",
-        'AZIM E',
-        'BASHEER',
-        'HANI SADIQUE',
-        'MISBAH',
-        'ADNAN',
-        'HANOON',
-        'IBRAHIM',
-        'AJSAL AMEEN',
-        'THWALHA'
-      ],
-      'حلقة عثمان بن عفان': [
-        'AHMED JAZIM',
-        'MUHAMMED SALIH',
-        'EESA ABDULLA',
-        'RAIHAN',
-        'FAHEEM IBNU SATHAR',
-        'FOUZAN SIDHIQUE',
-        'IHSAN',
-        'AJMAL MANAF',
-        'AASWIL HAQ'
-      ],
-      'حلقة علي بن أبي طالب': [
-        'SALMAN FARIS',
-        'IHTHISHAM',
-        'NAHAN',
-        'ABDULLA HAMDAN',
-        'MISHAB SHAFI',
-        'MUHAMMED FAHEEM C',
-        'UZAIR',
-        'FADI MUHAMMED',
-        'HAFEEZ',
-        'AJWAD'
-      ],
-      'حلقة سعد بن أبي وقاص': [
-        'MUHAMMED FAHEEM K',
-        'ABDURAHMAN KHALID',
-        'ABDULLA M',
-        'ADIL SALEEM',
-        'SHAYAN',
-        'AZIM CK',
-        'ABDULLA ZAKI',
-        'FAAZ',
-        'AMLAH',
-        'MUHAMMED SHAYAN',
-      ]
-    };
-
-    List<QuranClass> classes = [];
-    for (int c = 0; c < classNames.length; c++) {
-      List<Student> students = [];
-      final className = classNames[c];
-      final classStudents = studentNames[className]!;
-
-      for (int s = 0; s < classStudents.length; s++) {
-        students.add(Student(
-          // id: 'S${c + 1}${(s + 1).toString().padLeft(2, '0')}',
-          name: classStudents[s],
-          classNumber: c + 1,
-          yearlyProgress: _generateYearlyProgress(),
-        ));
-      }
-      classes.add(QuranClass(
-        classNumber: c + 1,
-        students: students,
-      ));
-    }
-    return classes;
+  Student _createSampleStudent() {
+    return Student(
+      id: 'student_001', // Added unique ID for Firestore
+      name: 'Sample Student',
+      classNumber: 1,
+      yearlyProgress: _generateYearlyProgress(),
+    );
   }
 
   YearlyProgress _generateYearlyProgress() {
@@ -275,410 +66,283 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
       monthlyProgress: months,
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-            size: 18,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const TeachersPanelPage(),
-              ),
-            );
-          },
-        ),
-        title: const Text(
-          'Please select your Class',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF1E3C72),
-      ),
-
-      body: Column(
-        children: [
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                childAspectRatio: 1.5,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-              ),
-              itemCount: classes.length,
-              itemBuilder: (context, index) {
-                return _buildClassCard(context, classes[index]);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildClassCard(BuildContext context, QuranClass quranClass) {
-    final classNames = [
-      'حلقة أبي بكر الصديق',
-      'حلقة عمر بن الخطاب',
-      'حلقة عثمان بن عفان',
-      'حلقة علي بن أبي طالب',
-      'حلقة سعد بن أبي وقاص'
-    ];
-
-    String className;
-    if (quranClass.classNumber <= classNames.length) {
-        className = classNames[quranClass.classNumber - 1];
-    } else {
-        className = "Class ${quranClass.classNumber}"; // Fallback name
-    }
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => StudentListScreen(
-                quranClass: quranClass,
-                className: className,
-              ),
-            ),
-          );
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.school,
-              size: 48,
-              color: Color(0xFF1E3C72),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              className,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E3C72),
-              ),
-            ),
-            Text(
-              '${quranClass.students.length} Students',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
-class StudentListScreen extends StatefulWidget {
-  final QuranClass quranClass;
-  final String className;
+class Student {
+  String id; // Added for Firestore document ID
+  String name;
+  int classNumber;
+  YearlyProgress yearlyProgress;
 
-  const StudentListScreen({
-    super.key,
-    required this.quranClass,
-    required this.className,
+  Student({
+    required this.id,
+    required this.name,
+    required this.classNumber,
+    required this.yearlyProgress,
   });
 
-  @override
-  State<StudentListScreen> createState() => _StudentListScreenState();
-}
-
-class _StudentListScreenState extends State<StudentListScreen> {
-  late List<Student> students;
-  
-  @override
-  void initState() {
-    super.initState();
-    // Create a local copy of students to work with
-    students = widget.quranClass.students;
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'classNumber': classNumber,
+      'yearlyProgress': yearlyProgress.toMap(),
+    };
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-            size: 18,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          widget.className,
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF1E3C72),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8),
-        itemCount: students.length,
-        itemBuilder: (context, index) {
-          final student = students[index];
-          return _buildStudentCard(context, student, index);
-        },
-      ),
+  // Create from Firestore document
+  factory Student.fromMap(Map<String, dynamic> map) {
+    return Student(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      classNumber: map['classNumber'] ?? 0,
+      yearlyProgress: YearlyProgress.fromMap(map['yearlyProgress'] ?? {}),
     );
   }
+}
 
-  Widget _buildStudentCard(BuildContext context, Student student, int index) {
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    child: InkWell(
-      // Make the entire card tappable
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProgressTrackingScreen(student: student),
-          ),
+class LessonProgress {
+  bool completed;
+  bool isDefault;
+  int? lines;
+  int? pages;
+  bool isRead;
+  // bool hasHifzLesson;
+
+  LessonProgress({
+    this.completed = false,
+    this.isDefault = true,
+    this.lines,
+    this.pages,
+    this.isRead = false,
+    // this.hasHifzLesson = false,
+  });
+
+  int calculatePoints() {
+    if (!completed) return 0;
+    if (lines != null) return lines!;
+    if (pages != null) return pages!;
+    return 0;
+  }
+
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'completed': completed,
+      'isDefault': isDefault,
+      'lines': lines,
+      'pages': pages,
+      'isRead': isRead,
+      // 'hasHifzLesson': hasHifzLesson,
+    };
+  }
+
+  // Create from Firestore document
+  factory LessonProgress.fromMap(Map<String, dynamic> map) {
+    return LessonProgress(
+      completed: map['completed'] ?? false,
+      isDefault: map['isDefault'] ?? true,
+      lines: map['lines'],
+      pages: map['pages'],
+      isRead: map['isRead'] ?? false,
+      // hasHifzLesson: map['hasHifzLesson'] ?? false,
+    );
+  }
+}
+
+class DailyProgress {
+  final String date;
+  LessonProgress newLesson;
+  LessonProgress juzLesson;
+  LessonProgress oldLesson;
+  LessonProgress juzCompleted;
+  LessonProgress juzRevision;
+  LessonProgress testPassed;
+  LessonProgress testFailed;
+
+  DailyProgress({
+    required this.date,
+    required this.newLesson,
+    required this.juzLesson,
+    required this.oldLesson,
+    required this.juzCompleted,
+    required this.juzRevision,
+    required this.testPassed,
+    required this.testFailed,
+  });
+
+  int calculateDailyPoints() {
+    return newLesson.calculatePoints() +
+        juzLesson.calculatePoints() +
+        oldLesson.calculatePoints() +
+        testPassed.calculatePoints();
+  }
+
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'date': date,
+      'newLesson': newLesson.toMap(),
+      'juzLesson': juzLesson.toMap(),
+      'oldLesson': oldLesson.toMap(),
+      'juzCompleted': juzCompleted.toMap(),
+      'juzRevision': juzRevision.toMap(),
+      'testPassed': testPassed.toMap(),
+      'testFailed': testFailed.toMap(),
+    };
+  }
+
+  // Create from Firestore document
+  factory DailyProgress.fromMap(Map<String, dynamic> map) {
+    return DailyProgress(
+      date: map['date'] ?? '',
+      newLesson: LessonProgress.fromMap(map['newLesson'] ?? {}),
+      juzLesson: LessonProgress.fromMap(map['juzLesson'] ?? {}),
+      oldLesson: LessonProgress.fromMap(map['oldLesson'] ?? {}),
+      juzCompleted: LessonProgress.fromMap(map['juzCompleted'] ?? {}),
+      juzRevision: LessonProgress.fromMap(map['juzRevision'] ?? {}),
+      testPassed: LessonProgress.fromMap(map['testPassed'] ?? {}),
+      testFailed: LessonProgress.fromMap(map['testFailed'] ?? {}),
+    );
+  }
+}
+
+class MonthlyProgress {
+  final String month;
+  final List<DailyProgress> dailyProgress;
+
+  MonthlyProgress({
+    required this.month,
+    required this.dailyProgress,
+  });
+
+  int calculateMonthlyPoints() {
+    return dailyProgress.fold(
+        0, (sum, daily) => sum + daily.calculateDailyPoints());
+  }
+
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'month': month,
+      'dailyProgress': dailyProgress.map((daily) => daily.toMap()).toList(),
+    };
+  }
+
+  // Create from Firestore document
+  factory MonthlyProgress.fromMap(Map<String, dynamic> map) {
+    return MonthlyProgress(
+      month: map['month'] ?? '',
+      dailyProgress: (map['dailyProgress'] as List<dynamic>?)
+              ?.map((daily) => DailyProgress.fromMap(daily))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+class YearlyProgress {
+  final String year;
+  final List<MonthlyProgress> monthlyProgress;
+
+  YearlyProgress({
+    required this.year,
+    required this.monthlyProgress,
+  });
+
+  int calculateYearlyPoints() {
+    return monthlyProgress.fold(
+        0, (sum, month) => sum + month.calculateMonthlyPoints());
+  }
+
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'year': year,
+      'monthlyProgress': monthlyProgress.map((month) => month.toMap()).toList(),
+    };
+  }
+
+  // Create from Firestore document
+  factory YearlyProgress.fromMap(Map<String, dynamic> map) {
+    return YearlyProgress(
+      year: map['year'] ?? '',
+      monthlyProgress: (map['monthlyProgress'] as List<dynamic>?)
+              ?.map((month) => MonthlyProgress.fromMap(month))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+// Firestore Service Class
+class FirestoreService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Save student progress to Firestore
+  Future<void> saveStudentProgress(Student student, int year) async {
+    try {
+      await _firestore
+          .collection('students')
+          .doc(student.id)
+          .collection('yearly_progress')
+          .doc(year.toString())
+          .set(student.yearlyProgress.toMap());
+    } catch (e) {
+      throw Exception('Failed to save student progress: $e');
+    }
+  }
+
+  // Load student progress from Firestore
+  Future<YearlyProgress?> loadStudentProgress(String studentId, int year) async {
+    try {
+      final doc = await _firestore
+          .collection('students')
+          .doc(studentId)
+          .collection('yearly_progress')
+          .doc(year.toString())
+          .get();
+
+      if (doc.exists) {
+        return YearlyProgress.fromMap(doc.data()!);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to load student progress: $e');
+    }
+  }
+
+  // Save student basic info
+  Future<void> saveStudentInfo(Student student) async {
+    try {
+      await _firestore.collection('students').doc(student.id).set({
+        'id': student.id,
+        'name': student.name,
+        'classNumber': student.classNumber,
+      });
+    } catch (e) {
+      throw Exception('Failed to save student info: $e');
+    }
+  }
+
+  // Load student basic info
+  Future<Student?> loadStudentInfo(String studentId) async {
+    try {
+      final doc = await _firestore.collection('students').doc(studentId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        return Student(
+          id: data['id'],
+          name: data['name'],
+          classNumber: data['classNumber'],
+          yearlyProgress: YearlyProgress(year: '2025', monthlyProgress: []),
         );
-      },
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF1E3C72),
-          child: Text(
-            student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        title: Text(
-          student.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1E3C72), // Optional: Make the text color match your theme
-          ),
-        ),
-        // Optional: Add a subtle hint that this is clickable
-        subtitle: const Text(
-          "Tap to view progress",
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-        trailing: SizedBox(
-          width: 48, // Reduced width as we only have the menu button now
-          child: PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            padding: EdgeInsets.zero,
-            onSelected: (value) {
-              if (value == 'edit') {
-                _editStudent(context, student, index);
-              } else if (value == 'delete') {
-                _deleteStudent(context, student, index);
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit),
-                    SizedBox(width: 8),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-// // Alternative version without subtitle if you prefer a cleaner look
-// Widget _buildStudentCardSimple(BuildContext context, Student student, int index) {
-//   return Card(
-//     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-//     child: InkWell(
-//       // Make the entire card tappable
-//       onTap: () {
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => ProgressTrackingScreen(student: student),
-//           ),
-//         );
-//       },
-//       child: ListTile(
-//         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//         leading: CircleAvatar(
-//           backgroundColor: const Color(0xFF1E3C72),
-//           child: Text(
-//             student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
-//             style: const TextStyle(
-//                 color: Colors.white, fontWeight: FontWeight.bold),
-//           ),
-//         ),
-//         title: Row(
-//           children: [
-//             Text(
-//               student.name,
-//               style: const TextStyle(fontWeight: FontWeight.w500),
-//             ),
-//             const SizedBox(width: 4),
-//             const Icon(
-//               Icons.arrow_forward,
-//               size: 16,
-//               color: Colors.grey,
-//             ),
-//           ],
-//         ),
-//         trailing: PopupMenuButton<String>(
-//           icon: const Icon(Icons.more_vert),
-//           padding: EdgeInsets.zero,
-//           onSelected: (value) {
-//             if (value == 'edit') {
-//               _editStudent(context, student, index);
-//             } else if (value == 'delete') {
-//               _deleteStudent(context, student, index);
-//             }
-//           },
-//           itemBuilder: (BuildContext context) => [
-//             const PopupMenuItem<String>(
-//               value: 'edit',
-//               child: Row(
-//                 children: [
-//                   Icon(Icons.edit),
-//                   SizedBox(width: 8),
-//                   Text('Edit'),
-//                 ],
-//               ),
-//             ),
-//             const PopupMenuItem<String>(
-//               value: 'delete',
-//               child: Row(
-//                 children: [
-//                   Icon(Icons.delete, color: Colors.red),
-//                   SizedBox(width: 8),
-//                   Text('Delete', style: TextStyle(color: Colors.red)),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
-  void _editStudent(BuildContext context, Student student, int index) {
-    final TextEditingController nameController = TextEditingController(text: student.name);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Student'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(labelText: 'Student Name'),
-          autofocus: true, // Automatically focus the text field
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Update the student name
-              final updatedName = nameController.text.trim();
-              if (updatedName.isNotEmpty) {
-                setState(() {
-                  // Update both local and class references
-                  student.name = updatedName;
-                  // Also update the original list
-                  widget.quranClass.students[index].name = updatedName;
-                  
-                  // If you're using a state management solution like Provider or Bloc,
-                  // you might need to trigger an update there as well
-                  // Example: Provider.of<QuranClassProvider>(context, listen: false).updateStudent(index, student);
-                });
-                
-                // Save changes to persistent storage if needed
-                _saveChanges();
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteStudent(BuildContext context, Student student, int index) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Student'),
-        content: Text('Are you sure you want to delete ${student.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                // Remove the student from both lists
-                students.removeAt(index);
-                widget.quranClass.students.removeAt(index);
-                
-                // If using state management
-                // Provider.of<QuranClassProvider>(context, listen: false).removeStudent(index);
-              });
-              
-              // Save changes to persistent storage if needed
-              _saveChanges();
-              
-              Navigator.pop(context);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  // Add this method to save changes to persistent storage
-  void _saveChanges() {
-    // Implement your storage logic here
-    // For example, using SharedPreferences, Hive, SQLite, or Firebase
-    // Example:
-    // final classProvider = Provider.of<QuranClassProvider>(context, listen: false);
-    // classProvider.saveClasses();
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to load student info: $e');
+    }
   }
 }
 
@@ -695,73 +359,151 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   int selectedMonthIndex = DateTime.now().month - 1;
   int selectedYear = DateTime.now().year;
   bool showYearPicker = false;
-  
-  // Store year-specific progress data
+  bool isLoading = false;
+  bool hasUnsavedChanges = false;
+
   late YearlyProgress currentYearProgress;
-  
-  // Map to cache yearly progress data to avoid regenerating it
   final Map<int, YearlyProgress> yearDataCache = {};
-  
+  final FirestoreService _firestoreService = FirestoreService();
+
   @override
   void initState() {
     super.initState();
-    // Initialize with the current year's data
     _loadYearData(selectedYear);
   }
 
-  // Method to load year-specific data
-  void _loadYearData(int year) {
+  Future<void> _loadYearData(int year) async {
     setState(() {
-      // Check cache first to avoid regenerating data if we've already loaded it
-      if (yearDataCache.containsKey(year)) {
-        currentYearProgress = yearDataCache[year]!;
-      } else {
-        // Get data for this year from student records or create new data
-        YearlyProgress? yearData = widget.student.getYearlyProgressForYear(year);
-        
-        if (yearData != null) {
-          // If data exists for this year, use it
-          currentYearProgress = yearData;
-        } else {
-          // If no data exists for this year, create a new instance with proper year dates
-          currentYearProgress = _createEmptyYearProgress(year);
-        }
-        
-        // Cache the data for future use
-        yearDataCache[year] = currentYearProgress;
-      }
+      isLoading = true;
     });
+
+    try {
+      if (yearDataCache.containsKey(year)) {
+        setState(() {
+          currentYearProgress = yearDataCache[year]!;
+          isLoading = false;
+        });
+        return;
+      }
+
+      // Try to load from Firestore first
+      YearlyProgress? firestoreData = await _firestoreService.loadStudentProgress(
+        widget.student.id,
+        year,
+      );
+
+      if (firestoreData != null) {
+        setState(() {
+          currentYearProgress = firestoreData;
+          yearDataCache[year] = firestoreData;
+          isLoading = false;
+        });
+      } else {
+        // Create new empty year if no data exists
+        YearlyProgress newYearProgress = _createEmptyYearProgress(year);
+        setState(() {
+          currentYearProgress = newYearProgress;
+          yearDataCache[year] = newYearProgress;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog('Failed to load data: $e');
+    }
   }
 
-  // Create new empty year progress data with correct dates for the specified year
+  Future<void> _saveCurrentYearData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Create a temporary student object with current year's data
+      Student tempStudent = Student(
+        id: widget.student.id,
+        name: widget.student.name,
+        classNumber: widget.student.classNumber,
+        yearlyProgress: currentYearProgress,
+      );
+
+      await _firestoreService.saveStudentProgress(tempStudent, selectedYear);
+      await _firestoreService.saveStudentInfo(tempStudent);
+
+      setState(() {
+        isLoading = false;
+        hasUnsavedChanges = false;
+      });
+
+      _showSuccessDialog('Data saved successfully!');
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog('Failed to save data: $e');
+    }
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   YearlyProgress _createEmptyYearProgress(int year) {
     List<String> months = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    
-    // Create monthly progress objects with year-specific dates
+
     List<MonthlyProgress> monthlyProgress = [];
-    
+
     for (int i = 0; i < months.length; i++) {
-      // Create appropriate number of days for each month
       int daysInMonth = _getDaysInMonth(i + 1, year);
       List<DailyProgress> dailyProgress = [];
-      
+
       for (int day = 1; day <= daysInMonth; day++) {
-        // Format day and month numbers with leading zeros
         String formattedDay = day.toString().padLeft(2, '0');
         String formattedMonth = (i + 1).toString().padLeft(2, '0');
-        
-        // Create date string in the format "dd-mm-yyyy"
         String dateString = "$formattedDay-$formattedMonth-$year";
-        
-        // Create empty daily progress with default lesson status
+
         dailyProgress.add(
           DailyProgress(
             date: dateString,
             newLesson: LessonProgress(),
-            juzLesson: LessonProgress(), 
+            juzLesson: LessonProgress(),
             oldLesson: LessonProgress(),
             juzCompleted: LessonProgress(),
             juzRevision: LessonProgress(),
@@ -770,7 +512,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
           ),
         );
       }
-      
+
       monthlyProgress.add(
         MonthlyProgress(
           month: months[i],
@@ -778,39 +520,52 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
         ),
       );
     }
-    
-    return YearlyProgress(monthlyProgress: monthlyProgress, year: '');
+
+    return YearlyProgress(monthlyProgress: monthlyProgress, year: year.toString());
   }
-  
-  // Helper function to get the correct number of days in a month for a specific year
+
   int _getDaysInMonth(int month, int year) {
     if (month == 2) {
-      // February - check for leap year
       if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-        return 29; // Leap year
+        return 29;
       } else {
-        return 28; // Non-leap year
+        return 28;
       }
     } else if ([4, 6, 9, 11].contains(month)) {
-      return 30; // April, June, September, November
+      return 30;
     } else {
-      return 31; // All other months have 31 days
+      return 31;
     }
   }
- 
-  // Method to update the year and fetch relevant data
+
   void _updateSelectedYear(int year) {
     setState(() {
       selectedYear = year;
       showYearPicker = false;
-      // Load data for the selected year
-      _loadYearData(year);
+    });
+    _loadYearData(year);
+  }
+
+  void _markAsChanged() {
+    setState(() {
+      hasUnsavedChanges = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get the data for the selected year and month
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Loading...'),
+          backgroundColor: const Color(0xFF1E3C72),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final selectedMonth = currentYearProgress.monthlyProgress[selectedMonthIndex];
 
     return Scaffold(
@@ -821,10 +576,16 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             color: Colors.white,
             size: 18,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const TeachersPanelPage()),
+            );
+          },
         ),
+        centerTitle: true,
         title: Text(
-          '${widget.student.name}\'S PROGRESS - $selectedYear',
+          'PROGRESS - $selectedYear${hasUnsavedChanges ? ' ' : ''}',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -832,6 +593,13 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
           ),
         ),
         backgroundColor: const Color(0xFF1E3C72),
+        actions: [
+          if (hasUnsavedChanges)
+            IconButton(
+              icon: const Icon(Icons.save, color: Colors.white),
+              onPressed: _saveCurrentYearData,
+            ),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
@@ -842,11 +610,49 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                 if (showYearPicker) _buildYearSelector(),
                 _buildMonthSelector(),
                 _buildMonthlySummary(selectedMonth),
+                _buildSubmitButton(),
               ],
             ),
           ),
           _buildDailyProgressList(selectedMonth),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: ElevatedButton(
+        onPressed: isLoading ? null : _saveCurrentYearData,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1E3C72),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_upload,color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    hasUnsavedChanges ? 'Save to Firestore' : 'Data Saved',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -898,7 +704,6 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              // Now uses the current year's data
               'Total Points: ${currentYearProgress.calculateYearlyPoints()}',
               style: const TextStyle(
                 fontSize: 23,
@@ -913,9 +718,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   }
 
   Widget _buildYearSelector() {
-    // Create a list of years from 2020 to 2040
     final List<int> years = List.generate(21, (index) => 2020 + index);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -930,7 +734,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
           itemBuilder: (context, index) {
             final year = years[index];
             final isSelected = selectedYear == year;
-            
+
             return GestureDetector(
               onTap: () {
                 _updateSelectedYear(year);
@@ -1045,9 +849,8 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
   }
 
   Widget _buildDailyProgressCard(DailyProgress daily) {
-    // Extract the date display string - the date should already have the correct year
     String displayDate = daily.date;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -1065,8 +868,7 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E3C72).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -1182,179 +984,175 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Update $lessonType'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildOptionColumn(
-                    icon: Icons.check_circle,
-                    iconColor: Colors.green,
-                    label: 'Completed',
-                    onTap: () {
-                      setState(() {
-                        lesson.isDefault = false;
-                        lesson.completed = true;
-                      });
-                      Navigator.pop(context);
-                      if (lessonType != 'Juz Completed' &&
-                          lessonType != 'Test Failed') {
-                        if (lessonType == 'New Lesson') {
-                          _showLineInputDialog(lesson);
-                        } else {
-                          _showPageInputDialog(lesson);
-                        }
-                      }
-                    },
-                  ),
-                  _buildOptionColumn(
-                    icon: Icons.cancel,
-                    iconColor: Colors.red,
-                    label: 'Not Done',
-                    onTap: () {
-                      setState(() {
-                        lesson.isDefault = false;
-                        lesson.completed = false;
-                        lesson.lines = null;
-                        lesson.pages = null;
-                      });
-                      Navigator.pop(context);
-                    },
-                  ),
-                  _buildOptionColumn(
-                    icon: Icons.remove_circle,
-                    iconColor: Colors.grey,
-                    label: 'Empty',
-                    onTap: () {
-                      setState(() {
-                        lesson.isDefault = true;
-                        lesson.completed = true;
-                        lesson.lines = null;
-                        lesson.pages = null;
-                      });
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text('Update $lessonType'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Status options
+                    RadioListTile<String>(
+                      title: const Text('Empty'),
+                      value: 'default',
+                      groupValue: lesson.isDefault
+                          ? 'default'
+                          : lesson.completed
+                              ? 'completed'
+                              : 'failed',
+                      onChanged: (value) {
+                        setDialogState(() {
+                          lesson.isDefault = true;
+                          lesson.completed = false;
+                          lesson.lines = null;
+                          lesson.pages = null;
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Completed'),
+                      value: 'completed',
+                      groupValue: lesson.isDefault
+                          ? 'default'
+                          : lesson.completed
+                              ? 'completed'
+                              : 'failed',
+                      onChanged: (value) {
+                        setDialogState(() {
+                          lesson.isDefault = false;
+                          lesson.completed = true;
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Failed'),
+                      value: 'failed',
+                      groupValue: lesson.isDefault
+                          ? 'default'
+                          : lesson.completed
+                              ? 'completed'
+                              : 'failed',
+                      onChanged: (value) {
+                        setDialogState(() {
+                          lesson.isDefault = false;
+                          lesson.completed = false;
+                          lesson.lines = null;
+                          lesson.pages = null;
+                        });
+                      },
+                    ),
+                    
+                    // Show input fields only for completed lessons and specific lesson types
+                    if (!lesson.isDefault && 
+                        lesson.completed && 
+                        lessonType != 'Juz Completed' && 
+                        lessonType != 'Test Failed') ...[
+                      const Divider(),
+                      const Text(
+                        'Progress Details:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      // Lines input
+                      TextFormField(
+                        initialValue: lesson.lines?.toString() ?? '',
+                        decoration: const InputDecoration(
+                          labelText: 'Lines',
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter number of lines',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setDialogState(() {
+                            if (value.isEmpty) {
+                              lesson.lines = null;
+                            } else {
+                              final parsed = int.tryParse(value);
+                              if (parsed != null) {
+                                lesson.lines = parsed;
+                                lesson.pages = null; // Clear pages when lines is set
+                              }
+                            }
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      const Text('OR', textAlign: TextAlign.center),
+                      const SizedBox(height: 10),
+                      
+                      // Pages input
+                      TextFormField(
+                        initialValue: lesson.pages?.toString() ?? '',
+                        decoration: const InputDecoration(
+                          labelText: 'Pages',
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter number of pages',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setDialogState(() {
+                            if (value.isEmpty) {
+                              lesson.pages = null;
+                            } else {
+                              final parsed = int.tryParse(value);
+                              if (parsed != null) {
+                                lesson.pages = parsed;
+                                lesson.lines = null; // Clear lines when pages is set
+                              }
+                            }
+                          });
+                        },
+                      ),
+                      // const SizedBox(height: 10),
+                      
+                      // Additional options
+                      // CheckboxListTile(
+                      //   title: const Text('Is Read'),
+                      //   value: lesson.isRead,
+                      //   onChanged: (value) {
+                      //     setDialogState(() {
+                      //       lesson.isRead = value ?? false;
+                      //     });
+                      //   },
+                      // ),
+                      // CheckboxListTile(
+                      //   title: const Text('Has Hifz Lesson'),
+                      //   value: lesson.hasHifzLesson,
+                      //   onChanged: (value) {
+                      //     setDialogState(() {
+                      //       lesson.hasHifzLesson = value ?? false;
+                      //     });
+                      //   },
+                      // ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOptionColumn({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      children: [
-        IconButton(
-          icon: Icon(
-            icon,
-            color: iconColor,
-            size: 40,
-          ),
-          onPressed: onTap,
-        ),
-        Text(label),
-      ],
-    );
-  }
-
-  void _showLineInputDialog(LessonProgress lesson) {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Enter Lines Read'),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Number of Lines',
-              hintText: 'Enter number of lines read',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  lesson.lines = int.tryParse(controller.text) ?? 0;
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showPageInputDialog(LessonProgress lesson) {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Enter Pages Completed'),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Number of Pages',
-              hintText: 'Enter number of pages completed',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  lesson.pages = int.tryParse(controller.text) ?? 0;
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _markAsChanged();
+                    setState(() {}); // Refresh the main UI
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E3C72),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 }
-
-// Extension on Student class to handle year-specific data
-extension StudentExtension on Student {
-  YearlyProgress? getYearlyProgressForYear(int year) {
-    // In a real app, this would retrieve year-specific data from a database
-    // For now, if it's the current year, return the existing data
-    if (year == DateTime.now().year) {
-      return yearlyProgress;
-    }
-    
-    // For other years, you would fetch from your database
-    // For this implementation, we'll return null to let the UI create empty data
-    return null;
-  }
-}
-

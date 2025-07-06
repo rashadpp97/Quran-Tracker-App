@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../view_model/admin_provider.dart';
-import '../../Students_panel/std_performanse_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class AddStudentPage extends StatefulWidget {
-  const AddStudentPage({super.key});
+class AddTeachersPage extends StatefulWidget {
+  const AddTeachersPage({super.key});
 
   @override
-  State<AddStudentPage> createState() => _AddStudentPageState();
+  State<AddTeachersPage> createState() => _AddTeachersPageState();
 }
 
-class _AddStudentPageState extends State<AddStudentPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _AddTeachersPageState extends State<AddTeachersPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +53,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                       ),
                       const SizedBox(height: 20.0),
                       const Text(
-                        "Add Student",
+                        "Add Teacher",
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -64,15 +61,15 @@ class _AddStudentPageState extends State<AddStudentPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "Create your account",
+                        "Create Teacher account",
                         style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                      )
+                      ),
                     ],
                   ),
                   Column(
                     children: <Widget>[
                       TextField(
-                        controller: _emailController,
+                        controller: emailController,
                         decoration: InputDecoration(
                           hintText: "Email",
                           border: OutlineInputBorder(
@@ -86,7 +83,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                       ),
                       const SizedBox(height: 20),
                       TextField(
-                        controller: _passwordController,
+                        controller: passwordController,
                         obscureText: !_isPasswordVisible,
                         decoration: InputDecoration(
                           hintText: "Password",
@@ -113,28 +110,25 @@ class _AddStudentPageState extends State<AddStudentPage> {
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 3, left: 3),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        adminProvider.registerNewStudent(
-                          _emailController.text,
-                          _passwordController.text,
-                          context,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        "Add Student",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  ElevatedButton(
+                    onPressed: () {
+                      adminProvider.registerNewStudent(
+                        emailController.text,
+                        passwordController.text,
+                        context,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: const Text(
+                      "Add Teacher",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

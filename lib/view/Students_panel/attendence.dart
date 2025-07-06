@@ -34,7 +34,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   // Year selection
   bool showYearPicker = false;
-  final List<int> yearList = List.generate(21, (index) => 2020 + index); // 2020 to 2040
+  final List<int> yearList = List.generate(31, (index) => 2020 + index); // 2020 to 2050
 
   @override
   void initState() {

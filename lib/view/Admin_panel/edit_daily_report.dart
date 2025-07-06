@@ -1,32 +1,12 @@
 import 'package:flutter/material.dart';
 import 'admins_panel_page.dart';
 
-
-class ClassAddAndDeleteControlPage extends StatelessWidget {
-  const ClassAddAndDeleteControlPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Quran Progress Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFFF5F6FA),
-      ),
-      home: const ClassSelectionScreen(),
-    );
-  }
-}
-
 class Student {
-  // final String id;
   String name;
   final int classNumber;
   final YearlyProgress yearlyProgress;
 
   Student({
-    // required this.id,
     required this.name,
     required this.classNumber,
     required this.yearlyProgress,
@@ -286,7 +266,6 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
           students: classes[i]
               .students
               .map((student) => Student(
-                    // id: 'S${i + 1}${student.id.substring(3)}',
                     name: student.name,
                     classNumber: i + 1,
                     yearlyProgress: student.yearlyProgress,
@@ -376,7 +355,6 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
 
       for (int s = 0; s < classStudents.length; s++) {
         students.add(Student(
-          // id: 'S${c + 1}${(s + 1).toString().padLeft(2, '0')}',
           name: classStudents[s],
           classNumber: c + 1,
           yearlyProgress: _generateYearlyProgress(),
@@ -641,7 +619,6 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
             final newClassNumber = classes.length + 1;
             final newStudents = students.asMap().entries.map((entry) {
               return Student(
-                // id: 'S$newClassNumber${(entry.key + 1).toString().padLeft(2, '0')}',
                 name: entry.value,
                 classNumber: newClassNumber,
                 yearlyProgress: _generateYearlyProgress(),
@@ -740,7 +717,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
             color: Colors.white,
             size: 18,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder:(context)=> const AdminsPanelPage()));
+          
+          },
         ),
         title: Text(
           widget.className,
@@ -1146,7 +1126,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
             color: Colors.white,
             size: 18,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder:(context)=> const AdminsPanelPage()));
+          },
         ),
         title: Text(
           '${widget.student.name}\'S PROGRESS - $selectedYear',
@@ -1671,14 +1653,9 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
 // Extension on Student class to handle year-specific data
 extension StudentExtension on Student {
   YearlyProgress? getYearlyProgressForYear(int year) {
-    // In a real app, this would retrieve year-specific data from a database
-    // For now, if it's the current year, return the existing data
     if (year == DateTime.now().year) {
       return yearlyProgress;
     }
-    
-    // For other years, you would fetch from your database
-    // For this implementation, we'll return null to let the UI create empty data
     return null;
   }
 }
