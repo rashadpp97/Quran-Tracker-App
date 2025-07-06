@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:quran_progress_tracker_app/view/Admin_panel/admins_panel_page.dart';
 
-void main() {
-  runApp(const EducationLevelControlPage());
-}
 
 class EducationLevelControlPage extends StatelessWidget {
   const EducationLevelControlPage({super.key});
@@ -12,11 +9,6 @@ class EducationLevelControlPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hifz Progress Tracker',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFFF8F9FD),
-      ),
       home: const StudentListPage(),
       debugShowCheckedModeBanner: false,
     );
@@ -440,15 +432,6 @@ class _StudentListPageState extends State<StudentListPage> {
                     ))
                 .toList(),
           ),
-          // flexibleSpace: Container(
-          //   decoration: const BoxDecoration(
-          //     gradient: LinearGradient(
-          //       colors: [Color(0xFF00796B), Color(0xFF009688)],
-          //       begin: Alignment.topLeft,
-          //       end: Alignment.bottomRight,
-          //     ),
-          //   ),
-          // ),
           actions: [
             IconButton(
               icon: const Icon(Icons.add_circle, color: Colors.white),
@@ -674,15 +657,6 @@ class _HifzGraphPageState extends State<HifzGraphPage>
           ),
         ),
         centerTitle: true,
-        // flexibleSpace: Container(
-        //   decoration: const BoxDecoration(
-        //     gradient: LinearGradient(
-        //       colors: [Color(0xFF00796B), Color(0xFF009688)],
-        //       begin: Alignment.topLeft,
-        //       end: Alignment.bottomRight,
-        //     ),
-        //   ),
-        // ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.white),
@@ -897,6 +871,12 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                       barTouchData: BarTouchData(
                         enabled: true,
                         touchTooltipData: BarTouchTooltipData(
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              rod.toY.toString(),
+                              const TextStyle(color: Colors.white),
+                            );
+                          },
                           tooltipRoundedRadius: 8,
                         ),
                       ),
@@ -965,11 +945,12 @@ class _HifzGraphPageState extends State<HifzGraphPage>
         ),
       ),
     );
-    }
 
+    }
   Widget _buildLegend() {
     return Card(
-      elevation: 6,
+      elevation: 8,
+      shadowColor: Colors.blue.withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -977,7 +958,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Hifz Legend',
+              'Hifz Overview',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -990,7 +971,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
               runSpacing: 12.0,
               children: widget.student.hifzData.map((data) {
                 return Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Container(
                       width: 16,
@@ -1005,7 +986,7 @@ class _HifzGraphPageState extends State<HifzGraphPage>
                       '${data.year}: ${data.juzCount} Juz',
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -1017,98 +998,114 @@ class _HifzGraphPageState extends State<HifzGraphPage>
       ),
     );
   }
-
-  Widget _buildPieChart() {
-    return Card(
-      elevation: 8,
-      shadowColor: Colors.indigo,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            colors: [Colors.white, Color(0xFFF7F9FF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+Widget _buildPieChart() {
+  return Card(
+    elevation: 8,
+    shadowColor: Colors.indigo,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [Colors.white, Color(0xFFF7F9FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Text(
-              'Juz Distribution Overview',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
-              ),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const Text(
+            'Overall Progress Distribution',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C3E50),
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 300,
-              child: AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  final List<PieChartSectionData> sections = [];
-                  
-                  // Calculate total for percentage
-                  final total = widget.student.hifzData
-                      .fold(0, (sum, data) => sum + data.juzCount);
-                  
-                  // Only show sectors for non-zero juz counts
-                  for (int i = 0; i < widget.student.hifzData.length; i++) {
-                    final data = widget.student.hifzData[i];
-                    if (data.juzCount > 0) {
-                      sections.add(
-                        PieChartSectionData(
-                          color: data.color,
-                          value: data.juzCount.toDouble(),
-                          title: '${(data.juzCount / total * 100).toStringAsFixed(1)}%',
-                          radius: 100 * _animation.value,
-                          titleStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                  
-                  if (sections.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No progress data available',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    );
-                  }
-                  
-                  return PieChart(
-                    PieChartData(
-                      sections: sections,
-                      centerSpaceRadius: 0,
-                      sectionsSpace: 2,
-                      pieTouchData: PieTouchData(
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          // Handle touch events if needed
-                        },
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 250,
+            child: AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                final List<PieChartSectionData> sections = [];
+                
+                // Calculate total for percentage
+                final total = widget.student.hifzData
+                    .fold(0, (sum, data) => sum + data.juzCount);
+                
+                // Calculate completed Juz using total instead of isCompleted
+                final completedJuz = widget.student.hifzData
+                    .fold(0, (sum, data) => sum + data.juzCount);
+                
+                final remainingJuz = 30 - completedJuz; // Assuming total 30 Juz
+                // Add completed section
+                if (completedJuz > 0) {
+                  sections.add(
+                    PieChartSectionData(
+                      value: completedJuz.toDouble(),
+                      title: 'Completed\n$completedJuz Juz',
+                      color: Colors.indigo,
+                      radius: 100 * _animation.value,
+                      titleStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
                     ),
                   );
-                },
-              ),
+                }
+                // Add remaining section
+                if (remainingJuz > 0) {
+                  sections.add(
+                    PieChartSectionData(
+                      value: remainingJuz.toDouble(),
+                      title: 'Remaining\n$remainingJuz Juz',
+                      color: const Color(0xFFE0E0E0),
+                      radius: 100 * _animation.value,
+                      titleStyle: const TextStyle(
+                        color: Color(0xFF2C3E50),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  );
+                }
+                
+                if (sections.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No progress data available',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+                
+                return PieChart(
+                  PieChartData(
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 40,
+                    sections: sections,
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        // Handle touch events if needed
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
+    ),
+  );
+}
   @override
   void dispose() {
     _animationController.dispose();
@@ -1124,292 +1121,3 @@ class HifzData {
   HifzData(this.year, this.juzCount, this.color);
 }
 
-// Additional pages for complete application
-
-// class AdminsPanelPage extends StatelessWidget {
-//   const AdminsPanelPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           'Admin Panel',
-//           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white70),
-//         ),
-//         backgroundColor: const Color(0xFF1E3C72),
-//       ),
-//       body: Container(
-//         decoration: BoxDecoration(
-//           gradient: LinearGradient(
-//             begin: Alignment.topCenter,
-//             end: Alignment.bottomCenter,
-//             colors: [
-//               Colors.teal.shade50,
-//               Colors.grey.shade50,
-//             ],
-//           ),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: GridView.count(
-//             crossAxisCount: 2,
-//             crossAxisSpacing: 16,
-//             mainAxisSpacing: 16,
-//             children: [
-//               _buildMenuCard(
-//                 context,
-//                 'Student Management',
-//                 Icons.people,
-//                 Colors.indigo,
-//                 () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const StudentListPage(),
-//                     ),
-//                   );
-//                 },
-//               ),
-//               _buildMenuCard(
-//                 context,
-//                 'Attendance',
-//                 Icons.calendar_today,
-//                 Colors.teal,
-//                 () {
-//                   // Navigate to attendance page
-//                   // Implement as needed
-//                 },
-//               ),
-//               _buildMenuCard(
-//                 context,
-//                 'Reports',
-//                 Icons.bar_chart,
-//                 Colors.amber,
-//                 () {
-//                   // Navigate to reports page
-//                   // Implement as needed
-//                 },
-//               ),
-//               _buildMenuCard(
-//                 context,
-//                 'Settings',
-//                 Icons.settings,
-//                 Colors.blueGrey,
-//                 () {
-//                   // Navigate to settings page
-//                   // Implement as needed
-//                 },
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildMenuCard(BuildContext context, String title, IconData icon, 
-//       MaterialColor color, VoidCallback onTap) {
-//     return Card(
-//       elevation: 6,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-//       child: InkWell(
-//         onTap: onTap,
-//         borderRadius: BorderRadius.circular(15),
-//         child: Container(
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(15),
-//             gradient: LinearGradient(
-//               colors: [color.shade50, Colors.white],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//             ),
-//           ),
-//           padding: const EdgeInsets.all(16),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Icon(
-//                 icon,
-//                 size: 48,
-//                 color: color.shade700,
-//               ),
-//               const SizedBox(height: 12),
-//               Text(
-//                 title,
-//                 style: TextStyle(
-//                   fontSize: 18,
-//                   fontWeight: FontWeight.bold,
-//                   color: color.shade800,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-class AttendanceTrackingPage extends StatefulWidget {
-  final Student student;
-
-  const AttendanceTrackingPage({super.key, required this.student});
-
-  @override
-  _AttendanceTrackingPageState createState() => _AttendanceTrackingPageState();
-}
-
-class _AttendanceTrackingPageState extends State<AttendanceTrackingPage> {
-  late DateTime _selectedDate;
-  final Map<DateTime, bool> _attendance = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = DateTime.now();
-    _loadAttendance();
-  }
-
-  void _loadAttendance() {
-    // Convert string-based attendance data to DateTime-based
-    widget.student.attendance.forEach((dateStr, isPresent) {
-      final parts = dateStr.split('-');
-      if (parts.length == 3) {
-        try {
-          final date = DateTime(
-            int.parse(parts[0]),
-            int.parse(parts[1]),
-            int.parse(parts[2]),
-          );
-          _attendance[date] = isPresent;
-        } catch (e) {
-          // Handle parsing errors
-        }
-      }
-    });
-  }
-
-  void _saveAttendance() {
-    // Convert DateTime-based attendance back to string-based for storage
-    final Map<String, bool> attendanceData = {};
-    _attendance.forEach((date, isPresent) {
-      final dateStr = '${date.year}-${date.month}-${date.day}';
-      attendanceData[dateStr] = isPresent;
-    });
-    
-    setState(() {
-      widget.student.attendance = attendanceData;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '${widget.student.name}\'s Attendance',
-          style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white70),
-        ),
-        backgroundColor: const Color(0xFF1E3C72),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.teal.shade50,
-              Colors.grey.shade50,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            // Calendar widget would go here
-            // Implement according to your calendar package
-            
-            const SizedBox(height: 20),
-            
-            // Attendance controls
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.check_circle, color: Colors.green),
-                    label: const Text('Present'),
-                    onPressed: () {
-                      setState(() {
-                        _attendance[_selectedDate] = true;
-                        _saveAttendance();
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.green.shade600,
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.cancel, color: Colors.red),
-                    label: const Text('Absent'),
-                    onPressed: () {
-                      setState(() {
-                        _attendance[_selectedDate] = false;
-                        _saveAttendance();
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Attendance history
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _attendance.length,
-                    itemBuilder: (context, index) {
-                      final date = _attendance.keys.elementAt(index);
-                      final isPresent = _attendance[date]!;
-                      
-                      return ListTile(
-                        leading: Icon(
-                          isPresent ? Icons.check_circle : Icons.cancel,
-                          color: isPresent ? Colors.green : Colors.red,
-                        ),
-                        title: Text(
-                          '${date.day}/${date.month}/${date.year}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          isPresent ? 'Present' : 'Absent',
-                          style: TextStyle(
-                            color: isPresent ? Colors.green.shade700 : Colors.red.shade700,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

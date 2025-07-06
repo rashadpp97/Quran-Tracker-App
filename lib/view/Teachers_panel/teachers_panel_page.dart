@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quran_progress_tracker_app/view/Teachers_panel/std_data_screen.dart';
 import '../Splash_screen/second_page.dart';
 import 'edit_attendance.dart';
 import 'edit_daily_report.dart';
@@ -22,7 +23,7 @@ class TeachersPanelPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MainOptionPage(),
+                  builder: (context) => const StudentScreen(),
                 ),
               );
             }),
@@ -62,7 +63,7 @@ class TeachersPanelPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'STUDENTS REPORT',
+            'STUDENT REPORT',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

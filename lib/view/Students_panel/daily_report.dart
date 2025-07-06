@@ -229,7 +229,7 @@ class _ProgressTrackerState extends State<ProgressTracker>
             width: double.maxFinite,
             height: 300,
             child: ListView.builder(
-              itemCount: 21, // Years from 2020 to 2040
+              itemCount: 31, // Years from 2020 to 2050
               itemBuilder: (context, index) {
                 final year = 2020 + index;
                 return ListTile(

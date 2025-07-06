@@ -1,1 +1,36 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"soq-students-app","appId":"1:182387969817:android:36f0cadf39bbe13d90bf88","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"soq-students-app","configurations":{"android":"1:182387969817:android:36f0cadf39bbe13d90bf88","web":"1:182387969817:web:3e38b18fa805038390bf88"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "soq-students-app",
+          "appId": "1:182387969817:android:36f0cadf39bbe13d90bf88",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "soq-students-app",
+          "configurations": {
+            "android": "1:182387969817:android:36f0cadf39bbe13d90bf88",
+            "web": "1:182387969817:web:3e38b18fa805038390bf88"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

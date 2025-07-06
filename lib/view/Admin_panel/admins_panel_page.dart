@@ -5,22 +5,7 @@ import 'edit_daily_report.dart';
 import 'edit_monthly_topper.dart';
 import 'edit_std_name_list.dart';
 import 'register/add_student.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const AdminsPanelPage(),
-    );
-  }
-}
+import 'register/add_teachers.dart';
 
 class AdminsPanelPage extends StatelessWidget {
   const AdminsPanelPage({super.key});
@@ -105,7 +90,7 @@ class AdminsPanelPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ClassAddAndDeleteControlPage()),
+                        MaterialPageRoute(builder: (context) => ClassSelectionScreen()),
                       );
                     },
                   ),
@@ -150,6 +135,17 @@ class AdminsPanelPage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddStudentPage()),
+                      );
+                    },
+                  ),
+                   _buildEnhancedButton(
+                    icon: Icons.person_add,
+                    title: 'Add Teacher',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddTeachersPage()),
                       );
                     },
                   ),

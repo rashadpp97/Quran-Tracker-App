@@ -76,6 +76,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
         'guardianContact': _guardianContactController.text.trim(),
         'address': _addressController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
+         'email':'',
       };
 
       print("Student data prepared: $studentData");
